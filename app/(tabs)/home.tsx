@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity, Modal, Button, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  FlatList,
+  TouchableOpacity,
+  Modal,
+  Button,
+  Alert,
+} from "react-native";
 import { getDatabase, ref, push, set, get } from "firebase/database";
 import { auth } from "../../Config/firebaseConfig";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -16,8 +26,9 @@ export default function App() {
   useEffect(() => {
     const fetchData = async () => {
       const db = getDatabase();
+      const user = auth.currentUser;
       const reference = ref(db, "lists"); // Fetch all lists under the 'lists' node
-  
+
       try {
         const snapshot = await get(reference);
         const data = snapshot.val();
@@ -35,7 +46,7 @@ export default function App() {
         setLoading(false);
       }
     };
-  
+
     fetchData();
   }, []);
 
@@ -46,19 +57,17 @@ export default function App() {
       return;
     }
 
-
     const db = getDatabase();
-    const listsRef = ref(db, "lists"); 
+    const listsRef = ref(db, "lists");
     const newListRef = push(listsRef);
-    
-  
+
     try {
       await set(newListRef, {
         id: newListRef.key,
-        userId: user?.uid, 
-        name: newListName,  
+        userId: user?.uid,
+        name: newListName,
       });
-  
+
       console.log("List added!");
       setModalVisible(false);
       setNewListName("");
@@ -76,7 +85,10 @@ export default function App() {
   };
 
   const renderList = ({ item }: { item: { id: string; name: string } }) => (
-    <TouchableOpacity style={styles.listContainer} onPress={() => handleListPress(item.id)}>
+    <TouchableOpacity
+      style={styles.listContainer}
+      onPress={() => handleListPress(item.id)}
+    >
       <Text style={styles.listText}>{item.name}</Text>
     </TouchableOpacity>
   );
@@ -123,7 +135,10 @@ export default function App() {
         columnWrapperStyle={styles.listRow}
       />
 
-      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => setModalVisible(true)}
+      >
         <Text style={styles.addButtonText}>+ Add New List</Text>
       </TouchableOpacity>
 
