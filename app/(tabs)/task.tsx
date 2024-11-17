@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { useSearchParams } from "expo-router/build/hooks";
-import { get, getDatabase, push, ref, set } from "firebase/database";
+import { get, getDatabase, push, ref, set, update } from "firebase/database";
 import { useEffect, useState } from "react";
 import {
   FlatList,
@@ -17,7 +17,7 @@ import {
 export default function TaskScreen() {
   const listId = useSearchParams().get("listId");
   const [tasks, setTasks] = useState<
-    { id: string; name: string; completed: boolean }[]
+    { id: string; name: string; completed: boolean; date: string, lastUpdated: string }[]
   >([]);
   const [showModal, setShowModal] = useState(false);
   const [newTaskName, setNewTaskName] = useState("");
@@ -27,59 +27,77 @@ export default function TaskScreen() {
       console.error("List ID is not defined.");
       return;
     }
-  
+
     const db = getDatabase();
-    const reference = ref(db, `tasks`); // Fetch all tasks
-  
+    const reference = ref(db, `tasks`);
+
     try {
       const snapshot = await get(reference);
       const data = snapshot.val();
-      console.log("Fetched data:", data); // Debug: Log the fetched data
-  
       if (data) {
-        // Filter tasks based on listId
         const taskList = Object.keys(data)
           .map((key) => ({
             id: key,
             ...data[key],
           }))
-          .filter((task) => task.listId === listId); // Only keep tasks that belong to the specified listId
-  
+          .filter((task) => task.listId === listId);
+
         setTasks(taskList);
       } else {
-        setTasks([]); // Ensure no tasks are set if data is null
+        setTasks([]);
       }
     } catch (error) {
       console.error("Error fetching tasks:", error);
       Alert.alert("Error", "Failed to fetch tasks.");
     }
   };
-  
 
   useEffect(() => {
     if (listId) {
-      fetchTasks(); 
+      fetchTasks();
     }
   }, [listId]);
+
   const handleTaskPress = (taskId: string) => {
     router.push({
-        pathname: "/(tabs)/edit-task", // Corrected path for the edit-task screen
-        params: { taskId }, // Pass query parameters here
-      });
-  }
+      pathname: "/(tabs)/edit-task",
+      params: { taskId },
+    });
+  };
 
   const renderTask = ({
     item,
   }: {
-    item: { id: string; name: string; completed: boolean };
+    item: { id: string; name: string; completed: boolean; lastUpdated: string };
   }) => (
-    <TouchableOpacity style={styles.taskContainer} onPress={() => handleTaskPress(item.id)}>
-      <Text style={styles.taskText}>{item.name}</Text>
-      <Text style={styles.taskStatus}>
-        {item.completed ? "Completed" : "Not Completed"}
-      </Text>
-    </TouchableOpacity>
+    <View style={styles.taskContainer}>
+      <TouchableOpacity onPress={() => handleTaskPress(item.id)}>
+        <Text style={styles.taskText}>{item.name}</Text>
+        <Text style={styles.taskStatus}>
+          {item.completed ? "Completed" : "Not Completed"}
+        </Text>
+        <Text style={styles.taskDate}>Last Updated: {item.lastUpdated}</Text>
+      </TouchableOpacity>
+      <Button
+        title={item.completed ? "Mark Incomplete" : "Mark Complete"}
+        onPress={() => toggleTaskCompletion(item.id, !item.completed)}
+      />
+    </View>
   );
+
+  const toggleTaskCompletion = async (taskId: string, newStatus: boolean) => {
+    const db = getDatabase();
+    const taskRef = ref(db, `tasks/${taskId}`);
+    const currentDate = new Date().toLocaleString(); // Get current date and time
+    try {
+      await update(taskRef, { completed: newStatus, lastUpdated: currentDate });
+      console.log("Task status updated!");
+      fetchTasks();
+    } catch (error) {
+      console.error("Error updating task:", error);
+      Alert.alert("Error", "Failed to update the task status.");
+    }
+  };
 
   const addNewTask = async () => {
     if (!newTaskName.trim()) {
@@ -88,23 +106,24 @@ export default function TaskScreen() {
     }
 
     const db = getDatabase();
-    const tasksRef = ref(db, `tasks`); // Ensure tasks are added under the correct listId
+    const tasksRef = ref(db, `tasks`);
     const newTaskRef = push(tasksRef);
-    
+    const currentDate = new Date().toLocaleString(); 
+
     try {
       await set(newTaskRef, {
         id: newTaskRef.key,
         listId: listId,
         name: newTaskName,
         completed: false,
-         // Default state for a new task
+        date: currentDate,
+        lastUpdated: currentDate, 
       });
 
       console.log("Task added!");
-      setNewTaskName(""); // Clear input field after submitting
-      setShowModal(false); // Close modal after submission
-      fetchTasks(); // Re-fetch tasks to update the list
-
+      setNewTaskName("");
+      setShowModal(false);
+      fetchTasks();
     } catch (error) {
       console.error("Error adding task:", error);
       Alert.alert("Error", "Failed to add the task.");
@@ -181,6 +200,13 @@ const styles = StyleSheet.create({
   },
   taskStatus: {
     fontSize: 14,
+    marginTop: 5,
+    color: "#666",
+  },
+  taskDate: {
+    fontSize: 12,
+    color: "#999",
+    marginTop: 5,
   },
   addButton: {
     backgroundColor: "#007BFF",
