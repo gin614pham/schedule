@@ -11,7 +11,6 @@ export default function App() {
   const [searchText, setSearchText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [newListName, setNewListName] = useState("");
-  const user = auth.currentUser;
 
   // Fetch data from Realtime Database
   useEffect(() => {
@@ -41,10 +40,12 @@ export default function App() {
   }, []);
 
   const addNewList = async () => {
+    const user = auth.currentUser;
     if (!newListName.trim()) {
       Alert.alert("Validation Error", "List name cannot be empty.");
       return;
     }
+
 
     const db = getDatabase();
     const listsRef = ref(db, "lists"); 
@@ -234,6 +235,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    maxWidth: 300,
   },
   listText: {
     fontSize: 16,
