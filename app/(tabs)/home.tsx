@@ -1,25 +1,7 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  FlatList,
-  TouchableOpacity,
-  Modal,
-  Button,
-  Alert,
-} from "react-native";
-import {
-  getDatabase,
-  ref,
-  onValue,
-  push,
-  set,
-  off,
-  get,
-} from "firebase/database";
-import { auth, database } from "../../Config/firebaseConfig";
+import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity, Modal, Button, Alert } from "react-native";
+import { getDatabase, ref, push, set, get } from "firebase/database";
+import { auth } from "../../Config/firebaseConfig";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { router } from "expo-router";
 
@@ -35,17 +17,18 @@ export default function App() {
   useEffect(() => {
     const fetchData = async () => {
       const db = getDatabase();
-      const reference = ref(db, "lists");
-
+      const reference = ref(db, "lists"); // Fetch all lists under the 'lists' node
+  
       try {
         const snapshot = await get(reference);
         const data = snapshot.val();
         const lists = data
-          ? Object.keys(data).map((key) => ({ id: key, name: data[key].name }))
+          ? Object.keys(data)
+              .filter((key) => data[key].userId === user?.uid) // Filter by userId
+              .map((key) => ({ id: key, name: data[key].name })) // Get listId and name
           : [];
         setMyLists(lists);
         console.log("Fetched data:", lists);
-        console.log("Fetched data:", data);
       } catch (error) {
         console.error("Error fetching data:", error);
         setMyLists([]);
@@ -53,29 +36,46 @@ export default function App() {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, []);
 
-  // Add new list to Realtime Database
   const addNewList = async () => {
-    console.log("Adding new list", "hello");
+    if (!newListName.trim()) {
+      Alert.alert("Validation Error", "List name cannot be empty.");
+      return;
+    }
 
     const db = getDatabase();
-    await set(ref(db, "lists/" + user?.uid), { name: "hello" })
-      .then(() => {
-        console.log("List added!");
-        setModalVisible(false);
-        setNewListName("");
-        router.replace("/(tabs)/home");
-      })
-      .catch((error) => {
-        console.error("Error adding list: ", error);
-        Alert.alert("Error", "Failed to add the list.");
+    const listsRef = ref(db, "lists"); 
+    const newListRef = push(listsRef);
+    
+  
+    try {
+      await set(newListRef, {
+        id: newListRef.key,
+        userId: user?.uid, 
+        name: newListName,  
       });
+  
+      console.log("List added!");
+      setModalVisible(false);
+      setNewListName("");
+    } catch (error) {
+      console.error("Error adding list: ", error);
+      Alert.alert("Error", "Failed to add the list.");
+    }
   };
+
+  const handleListPress = (listId: string) => {
+    router.push({
+      pathname: "/(tabs)/task",
+      params: { listId }, // Passing query parameters
+    });
+  };
+
   const renderList = ({ item }: { item: { id: string; name: string } }) => (
-    <TouchableOpacity style={styles.listContainer}>
+    <TouchableOpacity style={styles.listContainer} onPress={() => handleListPress(item.id)}>
       <Text style={styles.listText}>{item.name}</Text>
     </TouchableOpacity>
   );
@@ -122,7 +122,7 @@ export default function App() {
         columnWrapperStyle={styles.listRow}
       />
 
-      <TouchableOpacity style={styles.addButton} onPress={addNewList}>
+      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
         <Text style={styles.addButtonText}>+ Add New List</Text>
       </TouchableOpacity>
 
