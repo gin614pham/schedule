@@ -10,7 +10,8 @@ const firebaseConfig = {
   messagingSenderId: "1042697645629",
   appId: "1:1042697645629:web:e34030c6b8e1897dc9c454",
   measurementId: "G-CGC2TFV3GM",
-  databaseURL: "https://schedule-gp3113-default-rtdb.firebaseio.com",
+  databaseURL:
+    "https://schedule-gp3113-default-rtdb.asia-southeast1.firebasedatabase.app",
 };
 
 // Initialize Firebase only if not already initialized
