@@ -1,5 +1,6 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA-Q_Iz5-OTuSUBCpjiMt7Eob7N6eO4VPY",
@@ -9,10 +10,13 @@ const firebaseConfig = {
   messagingSenderId: "1042697645629",
   appId: "1:1042697645629:web:e34030c6b8e1897dc9c454",
   measurementId: "G-CGC2TFV3GM",
+  databaseURL: "https://schedule-gp3113-default-rtdb.firebaseio.com",
 };
 
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase only if not already initialized
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 const auth = getAuth(app);
+const database = getDatabase(app);
 
-export { auth };
+export { auth, database };
