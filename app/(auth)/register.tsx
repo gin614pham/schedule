@@ -70,7 +70,7 @@ export default function Register() {
         <TouchableOpacity style={styles.button} onPress={handleRegister}>
           <Text>Register</Text>
         </TouchableOpacity>
-        <Link href="/(auth)/login" style={styles.link}>
+        <Link href="/" style={styles.link}>
           <Text style={styles.linkText}>Login</Text>
         </Link>
       </View>
