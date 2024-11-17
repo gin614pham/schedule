@@ -76,6 +76,7 @@ const styles = StyleSheet.create({
     width: "80%",
     alignItems: "center",
     justifyContent: "center",
+    maxWidth: 400,
   },
   input: {
     width: "100%",
