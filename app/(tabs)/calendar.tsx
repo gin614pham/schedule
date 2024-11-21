@@ -1,0 +1,77 @@
+import React, { useRef, useCallback } from "react";
+import { StyleSheet } from "react-native";
+import {
+  ExpandableCalendar,
+  AgendaList,
+  CalendarProvider,
+} from "react-native-calendars";
+
+import testIDs from "../../tests/testIDs";
+import { agendaItems, getMarkedDates } from "../../mocks/agendaItems";
+import AgendaItem from "../../mocks/AgendaItem";
+import { getTheme, themeColor, lightThemeColor } from "../../mocks/theme";
+
+const leftArrowIcon = require("../../assets/images/previous.png");
+const rightArrowIcon = require("../../assets/images/next.png");
+const ITEMS: any[] = agendaItems;
+
+interface Props {
+  weekView?: boolean;
+}
+
+const ExpandableCalendarScreen = (props: Props) => {
+  const { weekView } = props;
+  const marked = useRef(getMarkedDates());
+  const theme = useRef(getTheme());
+  const todayBtnTheme = useRef({
+    todayButtonTextColor: themeColor,
+  });
+
+  const renderItem = useCallback(({ item }: any) => {
+    return <AgendaItem item={item} />;
+  }, []);
+
+  return (
+    <CalendarProvider
+      date={ITEMS[1]?.title}
+      showTodayButton
+      // disabledOpacity={0.6}
+      theme={todayBtnTheme.current}
+      // todayBottomMargin={16}
+    >
+      <ExpandableCalendar
+        testID={testIDs.expandableCalendar.CONTAINER}
+        theme={theme.current}
+        firstDay={1}
+        markedDates={marked.current}
+        leftArrowImageSource={leftArrowIcon}
+        rightArrowImageSource={rightArrowIcon}
+      />
+      <AgendaList
+        sections={ITEMS}
+        renderItem={renderItem}
+        scrollToNextEvent
+        markToday
+        sectionStyle={styles.section}
+        // dayFormat={'yyyy-MM-d'}
+      />
+    </CalendarProvider>
+  );
+};
+
+export default ExpandableCalendarScreen;
+
+const styles = StyleSheet.create({
+  calendar: {
+    paddingLeft: 20,
+    paddingRight: 20,
+  },
+  header: {
+    backgroundColor: "lightgrey",
+  },
+  section: {
+    backgroundColor: lightThemeColor,
+    color: "grey",
+    textTransform: "capitalize",
+  },
+});

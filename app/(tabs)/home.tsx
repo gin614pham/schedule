@@ -33,6 +33,10 @@ export default function Home() {
   >([]);
 
   useEffect(() => {
+    document.title = "Home";
+  }, []);
+
+  useEffect(() => {
     const adjustColumns = () => {
       setNumColumns(
         withScreen < 700 ? 2 : withScreen < 1000 ? 3 : withScreen < 1300 ? 4 : 5
@@ -241,19 +245,46 @@ export default function Home() {
         {/* Modal for adding new list */}
         <Modal
           visible={modalVisible}
-          animationType="slide"
+          animationType="none"
           onRequestClose={() => setModalVisible(false)}
+          transparent
         >
-          <View style={styles.modalContainer}>
-            <TextInput
-              style={styles.modalInput}
-              placeholder="Enter List Name"
-              value={newListName}
-              onChangeText={setNewListName}
-            />
-            <View style={styles.modalButtons}>
-              <Button title="Cancel" onPress={() => setModalVisible(false)} />
-              <Button title="Add" onPress={addNewList} />
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <TextInput
+                style={styles.modalInput}
+                placeholder="Enter List Name"
+                value={newListName}
+                onChangeText={setNewListName}
+                textAlignVertical="top"
+                multiline
+              />
+              <View style={styles.modalButtonsLayout}>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text style={[[styles.modalButtonText, { color: "black" }]]}>
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
+                <View style={styles.modalSeparator} />
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={addNewList}
+                  disabled={!newListName}
+                >
+                  <Text
+                    style={
+                      !newListName
+                        ? styles.modalButtonTextDisabled
+                        : styles.modalButtonText
+                    }
+                  >
+                    Save
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </Modal>
@@ -399,21 +430,64 @@ const styles = StyleSheet.create({
     color: "#007bff",
     fontWeight: "bold",
   },
-  modalContainer: {
+  modalOverlay: {
     flex: 1,
     justifyContent: "center",
-    padding: 20,
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    flexGrow: 1,
+  },
+  modalContainer: {
+    flexDirection: "column",
+    backgroundColor: "white",
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "80%",
+    height: "30%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   modalInput: {
-    height: 40,
-    borderColor: "#ddd",
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    marginBottom: 20,
-    borderRadius: 5,
+    width: "100%",
+    padding: 10,
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
+    backgroundColor: "#ededed",
+    flexGrow: 9,
+    borderWidth: 0,
   },
-  modalButtons: {
+  modalButtonsLayout: {
     flexDirection: "row",
     justifyContent: "space-between",
+    width: "100%",
+    marginBottom: 0,
+    flexGrow: 1,
+    gap: 0,
+  },
+  modalButton: {
+    flex: 1,
+    padding: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#007bff",
+  },
+  modalButtonTextDisabled: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#b0b0b0",
+  },
+  modalSeparator: {
+    height: "90%",
+    width: 1,
+    backgroundColor: "#b0b0b0",
+    alignSelf: "center",
   },
 });
