@@ -7,7 +7,7 @@ import {
   TextInput,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { auth } from "../../Config/firebaseConfig";
+import { auth } from "../Config/firebaseConfig";
 import { router } from "expo-router";
 import { updatePassword } from "firebase/auth";
 
@@ -19,6 +19,7 @@ const settings = () => {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => setUser(user));
+    console.log("User:", user?.uid);
     return unsubscribe;
   }, []);
 
