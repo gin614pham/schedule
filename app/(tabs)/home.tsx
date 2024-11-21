@@ -9,49 +9,105 @@ import {
   Modal,
   Button,
   Alert,
+  ScrollView,
+  Dimensions,
 } from "react-native";
-import { getDatabase, ref, push, set, get } from "firebase/database";
+import { getDatabase, ref, push, set, onValue } from "firebase/database";
 import { auth } from "../../Config/firebaseConfig";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { router } from "expo-router";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
-export default function App() {
+export default function Home() {
   const [myLists, setMyLists] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [newListName, setNewListName] = useState("");
+  const [user, setUser] = useState(auth.currentUser);
+  const [numColumns, setNumColumns] = useState(2);
+  const withScreen = Dimensions.get("window").width;
+  const [withItemList, setWithItemList] = useState("48%") as any;
+  const [sharedLists, setSharedLists] = useState<
+    { id: string; name: string }[]
+  >([]);
+
+  useEffect(() => {
+    const adjustColumns = () => {
+      setNumColumns(
+        withScreen < 700 ? 2 : withScreen < 1000 ? 3 : withScreen < 1300 ? 4 : 5
+      );
+    };
+
+    const adjustItemList = () => {
+      setWithItemList(
+        withScreen < 700
+          ? "48%"
+          : withScreen < 1000
+          ? "32%"
+          : withScreen < 1300
+          ? "24%"
+          : "18%"
+      );
+    };
+
+    adjustColumns();
+    adjustItemList();
+
+    const subscribe = Dimensions.addEventListener("change", ({ window }) => {
+      setNumColumns(
+        window.width < 700
+          ? 2
+          : window.width < 1000
+          ? 3
+          : window.width < 1300
+          ? 4
+          : 5
+      );
+
+      setWithItemList(
+        window.width < 700
+          ? "48%"
+          : window.width < 1000
+          ? "32%"
+          : window.width < 1300
+          ? "24%"
+          : "18%"
+      );
+    });
+
+    return () => {
+      subscribe.remove();
+    };
+  }, [withScreen]);
+
+  useEffect(() => {
+    setUser(auth.currentUser);
+  }, []);
 
   // Fetch data from Realtime Database
   useEffect(() => {
-    const fetchData = async () => {
-      const db = getDatabase();
-      const user = auth.currentUser;
-      const reference = ref(db, "lists"); // Fetch all lists under the 'lists' node
+    const db = getDatabase();
+    const reference = ref(db, "lists"); // Reference to the 'lists' node in your Realtime Database
 
-      try {
-        const snapshot = await get(reference);
-        const data = snapshot.val();
-        const lists = data
-          ? Object.keys(data)
-              .filter((key) => data[key].userId === user?.uid) // Filter by userId
-              .map((key) => ({ id: key, name: data[key].name })) // Get listId and name
-          : [];
+    const unsubscribe = onValue(reference, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const lists = Object.keys(data)
+          .filter((key) => data[key].userId === user?.uid) // Filter by userId
+          .map((key) => ({ id: key, name: data[key].name })); // Get listId and name
         setMyLists(lists);
         console.log("Fetched data:", lists);
-      } catch (error) {
-        console.error("Error fetching data:", error);
+      } else {
         setMyLists([]);
-      } finally {
-        setLoading(false);
       }
-    };
+    });
 
-    fetchData();
-  }, []);
+    // Cleanup listener when component unmounts or when the effect re-runs
+    return () => unsubscribe();
+  }, [user?.uid]);
 
   const addNewList = async () => {
-    const user = auth.currentUser;
     if (!newListName.trim()) {
       Alert.alert("Validation Error", "List name cannot be empty.");
       return;
@@ -79,19 +135,36 @@ export default function App() {
 
   const handleListPress = (listId: string) => {
     router.push({
-      pathname: "/(tabs)/task",
+      pathname: "/(task)/task",
       params: { listId }, // Passing query parameters
     });
   };
 
-  const renderList = ({ item }: { item: { id: string; name: string } }) => (
-    <TouchableOpacity
-      style={styles.listContainer}
-      onPress={() => handleListPress(item.id)}
-    >
-      <Text style={styles.listText}>{item.name}</Text>
-    </TouchableOpacity>
-  );
+  const renderList = ({
+    item,
+  }: {
+    item: { id: string; name: string; isAddButton?: boolean };
+  }) => {
+    if (item.isAddButton) {
+      return (
+        <TouchableOpacity
+          style={[styles.listContainer, { width: withItemList }]}
+          onPress={() => setModalVisible(true)}
+        >
+          <Ionicons name="add" size={24} color="#1985f8f9" />
+        </TouchableOpacity>
+      );
+    }
+
+    return (
+      <TouchableOpacity
+        style={[styles.listContainer, { width: withItemList }]}
+        onPress={() => handleListPress(item.id)}
+      >
+        <Text style={styles.listText}>{item.name}</Text>
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return (
@@ -102,84 +175,97 @@ export default function App() {
   }
 
   return (
-    <View style={styles.container}>
-      {/* Search Bar */}
-      <View style={styles.searchBar}>
-        <Icon name="search" size={20} color="#aaa" style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchBarInput}
-          placeholder="Search for tasks, events, etc..."
-          placeholderTextColor="#aaa"
-          value={searchText}
-          onChangeText={(text) => setSearchText(text)}
-        />
-      </View>
-
-      {/* Banner Section */}
-      <View style={styles.banner}>
-        <Text style={styles.bannerText}>
-          Easily collaborate with your family or team
-        </Text>
-        <TouchableOpacity style={styles.bannerButton}>
-          <Text style={styles.bannerButtonText}>Learn more</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* My Lists */}
-      <Text style={styles.sectionTitle}>My lists</Text>
-      <FlatList
-        data={myLists.filter((list) => list.name)}
-        renderItem={renderList}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        columnWrapperStyle={styles.listRow}
-      />
-
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => setModalVisible(true)}
-      >
-        <Text style={styles.addButtonText}>+ Add New List</Text>
-      </TouchableOpacity>
-
-      {/* Shared Space */}
-      <Text style={styles.sectionTitle}>Shared Space</Text>
-      <TouchableOpacity style={styles.sharedSpace}>
-        <Text style={styles.sharedText}>+</Text>
-      </TouchableOpacity>
-
-      {/* Bottom Tab Bar */}
-      <View style={styles.tabBar}>
-        <Text style={styles.tabBarItem}>My Day</Text>
-        <Text style={styles.tabBarItem}>Next 7 Days</Text>
-        <Text style={styles.tabBarItem}>All Tasks</Text>
-        <Text style={styles.tabBarItem}>Calendar</Text>
-      </View>
-
-      {/* Modal for adding new list */}
-      <Modal
-        visible={modalVisible}
-        animationType="slide"
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <TextInput
-            style={styles.modalInput}
-            placeholder="Enter List Name"
-            value={newListName}
-            onChangeText={setNewListName}
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        {/* Search Bar */}
+        <View style={styles.searchBar}>
+          <Icon
+            name="search"
+            size={20}
+            color="#aaa"
+            style={styles.searchIcon}
           />
-          <View style={styles.modalButtons}>
-            <Button title="Cancel" onPress={() => setModalVisible(false)} />
-            <Button title="Add" onPress={addNewList} />
-          </View>
+          <TextInput
+            style={styles.searchBarInput}
+            placeholder="Search for tasks, events, etc..."
+            placeholderTextColor="#aaa"
+            value={searchText}
+            onChangeText={(text) => setSearchText(text)}
+          />
         </View>
-      </Modal>
-    </View>
+
+        {/* Banner Section */}
+        <View style={styles.banner}>
+          <Text style={styles.bannerText}>
+            Easily collaborate with your family or team
+          </Text>
+          <TouchableOpacity style={styles.bannerButton}>
+            <Text style={styles.bannerButtonText}>Learn more</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* My Lists */}
+        <Text style={styles.sectionTitle}>My lists</Text>
+        <View style={styles.myLists}>
+          <FlatList
+            data={[
+              ...myLists.filter((list) => list.name),
+              { id: "add", name: "Add", isAddButton: true },
+            ]}
+            renderItem={renderList}
+            keyExtractor={(item) => item.id || "add"}
+            numColumns={numColumns}
+            key={numColumns}
+            columnWrapperStyle={styles.listRow}
+            contentContainerStyle={styles.contentList}
+          />
+        </View>
+
+        {/* Shared Space */}
+        <Text style={styles.sectionTitle}>Shared Space</Text>
+        <View style={styles.myLists}>
+          <FlatList
+            data={[
+              ...sharedLists.filter((list) => list.name),
+              { id: "add", name: "Add", isAddButton: true },
+            ]}
+            renderItem={renderList}
+            keyExtractor={(item) => item.id || "add"}
+            numColumns={numColumns}
+            key={numColumns}
+            columnWrapperStyle={styles.listRow}
+            contentContainerStyle={styles.contentList}
+          />
+        </View>
+
+        {/* Modal for adding new list */}
+        <Modal
+          visible={modalVisible}
+          animationType="slide"
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Enter List Name"
+              value={newListName}
+              onChangeText={setNewListName}
+            />
+            <View style={styles.modalButtons}>
+              <Button title="Cancel" onPress={() => setModalVisible(false)} />
+              <Button title="Add" onPress={addNewList} />
+            </View>
+          </View>
+        </Modal>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: "#f8f9fa",
@@ -234,12 +320,24 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginVertical: 10,
   },
+  myLists: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  contentList: {
+    justifyContent: "center",
+    alignContent: "center",
+  },
   listRow: {
-    justifyContent: "space-between",
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    gap: 15,
+    marginHorizontal: 20,
   },
   listContainer: {
     backgroundColor: "white",
-    width: "48%",
     height: 100,
     borderRadius: 10,
     justifyContent: "center",
