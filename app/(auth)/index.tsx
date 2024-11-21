@@ -1,5 +1,5 @@
 import { Link, router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -13,6 +13,10 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    document.title = "Login";
+  }, []);
 
   const handleLogin = async () => {
     console.log("Login", email, password);
