@@ -33,7 +33,7 @@ export default function Home() {
   >([]);
 
   useEffect(() => {
-    document.title = "Home";
+    // document.title = "Home";
   }, []);
 
   useEffect(() => {

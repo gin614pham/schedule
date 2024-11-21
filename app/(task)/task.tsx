@@ -60,8 +60,8 @@ export default function TaskScreen() {
 
   const handleTaskPress = (taskId: string) => {
     router.push({
-      pathname: "/(tabs)/edit-task",
-      params: { taskId },
+      pathname: "/(task)/edit-task",
+      params: { taskId, listId }
     });
   };
 
@@ -118,6 +118,7 @@ export default function TaskScreen() {
         completed: false,
         date: currentDate,
         lastUpdated: currentDate, 
+        deadline: currentDate
       });
 
       console.log("Task added!");

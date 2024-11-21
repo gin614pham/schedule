@@ -18,7 +18,7 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
-    document.title = "Register";
+    // document.title = "Register";
   }, []);
 
   const handleRegister = async () => {

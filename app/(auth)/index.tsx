@@ -15,7 +15,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
 
   useEffect(() => {
-    document.title = "Login";
+    // document.title = "Login";
   }, []);
 
   const handleLogin = async () => {
