@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 import { router } from "expo-router";
 
@@ -18,7 +19,9 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
-    // document.title = "Register";
+    if (Platform.OS === "web") {
+      document.title = "Register";
+    }
   }, []);
 
   const handleRegister = async () => {

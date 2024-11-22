@@ -7,10 +7,10 @@ import {
   FlatList,
   TouchableOpacity,
   Modal,
-  Button,
   Alert,
   ScrollView,
   Dimensions,
+  Platform,
 } from "react-native";
 import { getDatabase, ref, push, set, onValue } from "firebase/database";
 import { auth } from "../../Config/firebaseConfig";
@@ -33,7 +33,9 @@ export default function Home() {
   >([]);
 
   useEffect(() => {
-    // document.title = "Home";
+    if (Platform.OS === "web") {
+      document.title = "Home";
+    }
   }, []);
 
   useEffect(() => {
@@ -222,6 +224,7 @@ export default function Home() {
             key={numColumns}
             columnWrapperStyle={styles.listRow}
             contentContainerStyle={styles.contentList}
+            scrollEnabled={false}
           />
         </View>
 
@@ -239,6 +242,7 @@ export default function Home() {
             key={numColumns}
             columnWrapperStyle={styles.listRow}
             contentContainerStyle={styles.contentList}
+            scrollEnabled={false}
           />
         </View>
 

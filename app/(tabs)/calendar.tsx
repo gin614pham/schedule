@@ -1,12 +1,7 @@
-import React, { useRef, useCallback } from "react";
-import { StyleSheet } from "react-native";
-import {
-  ExpandableCalendar,
-  AgendaList,
-  CalendarProvider,
-} from "react-native-calendars";
+import React, { useRef, useCallback, useEffect } from "react";
+import { Platform, StyleSheet } from "react-native";
+import { AgendaList, CalendarProvider } from "react-native-calendars";
 
-import testIDs from "../../tests/testIDs";
 import { agendaItems, getMarkedDates } from "../../mocks/agendaItems";
 import AgendaItem from "../../mocks/AgendaItem";
 import { getTheme, themeColor, lightThemeColor } from "../../mocks/theme";
@@ -15,14 +10,16 @@ const leftArrowIcon = require("../../assets/images/previous.png");
 const rightArrowIcon = require("../../assets/images/next.png");
 const ITEMS: any[] = agendaItems;
 
-interface Props {
-  weekView?: boolean;
-}
-
-const ExpandableCalendarScreen = (props: Props) => {
-  const { weekView } = props;
+const ExpandableCalendarScreen = () => {
   const marked = useRef(getMarkedDates());
   const theme = useRef(getTheme());
+
+  useEffect(() => {
+    if (Platform.OS === "web") {
+      document.title = "Calendar";
+    }
+  }, []);
+
   const todayBtnTheme = useRef({
     todayButtonTextColor: themeColor,
   });
@@ -39,14 +36,6 @@ const ExpandableCalendarScreen = (props: Props) => {
       theme={todayBtnTheme.current}
       // todayBottomMargin={16}
     >
-      <ExpandableCalendar
-        testID={testIDs.expandableCalendar.CONTAINER}
-        theme={theme.current}
-        firstDay={1}
-        markedDates={marked.current}
-        leftArrowImageSource={leftArrowIcon}
-        rightArrowImageSource={rightArrowIcon}
-      />
       <AgendaList
         sections={ITEMS}
         renderItem={renderItem}

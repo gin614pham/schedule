@@ -1,3 +1,5 @@
+import CustomRadioButton from "@/components/customRadioButton";
+import Header from "@/components/header";
 import { router } from "expo-router";
 import { useSearchParams } from "expo-router/build/hooks";
 import { get, getDatabase, push, ref, set, update } from "firebase/database";
@@ -8,19 +10,55 @@ import {
   TouchableOpacity,
   View,
   StyleSheet,
-  TextInput,
-  Button,
-  Modal,
   Alert,
+  Platform,
+  Dimensions,
+  KeyboardAvoidingView,
+  Keyboard,
 } from "react-native";
+import { Feather, AntDesign } from "@expo/vector-icons";
+import { PaperProvider } from "react-native-paper";
+import InputNewTask from "@/components/inputNewTask";
 
 export default function TaskScreen() {
   const listId = useSearchParams().get("listId");
   const [tasks, setTasks] = useState<
-    { id: string; name: string; completed: boolean; date: string, lastUpdated: string }[]
+    {
+      id: string;
+      name: string;
+      completed: boolean;
+      date: string;
+      lastUpdated: string;
+    }[]
   >([]);
-  const [showModal, setShowModal] = useState(false);
   const [newTaskName, setNewTaskName] = useState("");
+  const [listName, setListName] = useState("");
+  const [withScreen, setWithScreen] = useState(Dimensions.get("window").width);
+  const [isInputFocused, setIsInputFocused] = useState(false);
+
+  useEffect(() => {
+    const updateScreenSize = Dimensions.addEventListener(
+      "change",
+      ({ window }) => {
+        setWithScreen(window.width);
+      }
+    );
+
+    const keyboardDidHide = Keyboard.addListener("keyboardDidHide", () => {
+      setIsInputFocused(false);
+    });
+
+    return () => {
+      updateScreenSize.remove();
+      keyboardDidHide.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS === "web") {
+      document.title = "Tasks - " + listName;
+    }
+  }, [listName]);
 
   const fetchTasks = async () => {
     if (!listId) {
@@ -46,6 +84,13 @@ export default function TaskScreen() {
       } else {
         setTasks([]);
       }
+
+      const listRef = ref(db, `lists/${listId}`);
+      const listSnapshot = await get(listRef);
+      const listData = listSnapshot.val();
+      if (listData) {
+        setListName(listData.name);
+      }
     } catch (error) {
       console.error("Error fetching tasks:", error);
       Alert.alert("Error", "Failed to fetch tasks.");
@@ -58,10 +103,33 @@ export default function TaskScreen() {
     }
   }, [listId]);
 
+  const handDeleteTask = async (taskId: string) => {
+    const db = getDatabase();
+    const taskRef = ref(db, `tasks/${taskId}`);
+
+    try {
+      await update(taskRef, { deleted: true });
+      console.log("Task deleted!");
+      fetchTasks();
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      Alert.alert("Error", "Failed to delete task.");
+    }
+  };
+
+  const handleShowInput = () => {
+    setIsInputFocused(true);
+  };
+
+  const handleHideInput = () => {
+    setIsInputFocused(false);
+    Keyboard.dismiss();
+  };
+
   const handleTaskPress = (taskId: string) => {
     router.push({
       pathname: "/(task)/edit-task",
-      params: { taskId, listId }
+      params: { taskId, listId },
     });
   };
 
@@ -71,17 +139,29 @@ export default function TaskScreen() {
     item: { id: string; name: string; completed: boolean; lastUpdated: string };
   }) => (
     <View style={styles.taskContainer}>
-      <TouchableOpacity onPress={() => handleTaskPress(item.id)}>
-        <Text style={styles.taskText}>{item.name}</Text>
-        <Text style={styles.taskStatus}>
-          {item.completed ? "Completed" : "Not Completed"}
-        </Text>
-        <Text style={styles.taskDate}>Last Updated: {item.lastUpdated}</Text>
-      </TouchableOpacity>
-      <Button
-        title={item.completed ? "Mark Incomplete" : "Mark Complete"}
+      <CustomRadioButton
+        checked={item.completed}
         onPress={() => toggleTaskCompletion(item.id, !item.completed)}
       />
+      <TouchableOpacity
+        style={styles.taskContent}
+        onPress={() => handleTaskPress(item.id)}
+      >
+        <Text style={[styles.taskText, item.completed && { color: "gray" }]}>
+          {item.name}
+        </Text>
+        {item.completed && (
+          <>
+            <View style={[styles.taskSeparator, { width: withScreen - 175 }]} />
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => handDeleteTask(item.id)}
+            >
+              <Feather name="delete" size={24} color="gray" />
+            </TouchableOpacity>
+          </>
+        )}
+      </TouchableOpacity>
     </View>
   );
 
@@ -108,7 +188,7 @@ export default function TaskScreen() {
     const db = getDatabase();
     const tasksRef = ref(db, `tasks`);
     const newTaskRef = push(tasksRef);
-    const currentDate = new Date().toLocaleString(); 
+    const currentDate = new Date().toLocaleString();
 
     try {
       await set(newTaskRef, {
@@ -117,13 +197,12 @@ export default function TaskScreen() {
         name: newTaskName,
         completed: false,
         date: currentDate,
-        lastUpdated: currentDate, 
-        deadline: currentDate
+        lastUpdated: currentDate,
+        deadline: currentDate,
       });
 
       console.log("Task added!");
       setNewTaskName("");
-      setShowModal(false);
       fetchTasks();
     } catch (error) {
       console.error("Error adding task:", error);
@@ -132,45 +211,43 @@ export default function TaskScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Tasks</Text>
-      <FlatList
-        data={tasks}
-        renderItem={renderTask}
-        keyExtractor={(item) => item.id}
-      />
-
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => setShowModal(true)}
-      >
-        <Text style={styles.addButtonText}>Add Task</Text>
-      </TouchableOpacity>
-
-      <Modal
-        transparent={true}
-        animationType="slide"
-        visible={showModal}
-        onRequestClose={() => setShowModal(false)}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter task name"
-              value={newTaskName}
+    <PaperProvider>
+      <View style={styles.container}>
+        <Header title={listName} />
+        <FlatList
+          data={tasks}
+          renderItem={renderTask}
+          keyExtractor={(item) => item.id}
+        />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          {!isInputFocused ? (
+            <View style={styles.addButtonContainer}>
+              <TouchableOpacity
+                style={styles.homeButton}
+                onPress={() => router.replace("/home")}
+              >
+                <AntDesign name="home" size={24} color="#2592ff" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={handleShowInput}
+              >
+                <Text style={styles.addButtonText}>I want to do...</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <InputNewTask
+              title={newTaskName}
               onChangeText={setNewTaskName}
+              onSubmit={addNewTask}
+              handleHideInput={handleHideInput}
             />
-            <Button title="Submit" onPress={addNewTask} />
-            <Button
-              title="Cancel"
-              onPress={() => setShowModal(false)}
-              color="red"
-            />
-          </View>
-        </View>
-      </Modal>
-    </View>
+          )}
+        </KeyboardAvoidingView>
+      </View>
+    </PaperProvider>
   );
 }
 
@@ -178,6 +255,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
+    backgroundColor: "white",
   },
   sectionTitle: {
     fontSize: 18,
@@ -185,6 +263,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   taskContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    justifyContent: "flex-start",
     backgroundColor: "white",
     padding: 15,
     marginBottom: 10,
@@ -195,9 +277,34 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
+  taskContent: {
+    flex: 1,
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "center",
+    justifyContent: "flex-start",
+  },
+  taskSeparator: {
+    height: 1,
+    width: "75%",
+    backgroundColor: "gray",
+    position: "absolute",
+    left: 25,
+  },
+  deleteButton: {
+    position: "absolute",
+    right: 10,
+  },
+  addButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    gap: 10,
+  },
   taskText: {
-    fontSize: 16,
-    color: "#333",
+    fontSize: 18,
+    color: "#black",
   },
   taskStatus: {
     fontSize: 14,
@@ -209,30 +316,10 @@ const styles = StyleSheet.create({
     color: "#999",
     marginTop: 5,
   },
-  addButton: {
-    backgroundColor: "#007BFF",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    marginTop: 20,
-  },
   addButtonText: {
-    color: "white",
+    color: "gray",
     fontSize: 16,
     fontWeight: "bold",
-  },
-  modalBackground: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContainer: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 10,
-    width: "80%",
-    alignItems: "center",
   },
   input: {
     width: "100%",
@@ -241,5 +328,30 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.3)",
+    zIndex: 1,
+  },
+  addButton: {
+    flex: 9,
+    backgroundColor: "white",
+    padding: 15,
+    paddingStart: 25,
+    borderRadius: 30,
+    alignItems: "flex-start",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  homeButton: {
+    flex: 2,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 20,
+    backgroundColor: "white",
   },
 });

@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 import { auth } from "../../Config/firebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -15,7 +16,9 @@ export default function Login() {
   const [password, setPassword] = useState("");
 
   useEffect(() => {
-    // document.title = "Login";
+    if (Platform.OS === "web") {
+      document.title = "Login";
+    }
   }, []);
 
   const handleLogin = async () => {
