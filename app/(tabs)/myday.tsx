@@ -1,7 +1,13 @@
-import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import { Platform, StyleSheet, Text, View } from "react-native";
+import React, { useEffect } from "react";
 
 const MyDay = () => {
+  useEffect(() => {
+    if (Platform.OS === "web") {
+      document.title = "My Day Task";
+    }
+  }, []);
+
   return (
     <View>
       <Text>My Day Task</Text>

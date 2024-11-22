@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
   TextInput,
+  Platform,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { auth } from "../Config/firebaseConfig";
@@ -18,6 +19,10 @@ const settings = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
+    if (Platform.OS === "web") {
+      document.title = "Settings";
+    }
+
     const unsubscribe = auth.onAuthStateChanged((user) => setUser(user));
     console.log("User:", user?.uid);
     return unsubscribe;
