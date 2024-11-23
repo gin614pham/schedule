@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useSearchParams } from "expo-router/build/hooks";
-import { getDatabase, ref, set, get, onValue } from "firebase/database";
+import { getDatabase, ref, set, get, onValue, push, remove, update } from "firebase/database";
 import React, { useEffect, useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { auth } from "@/Config/firebaseConfig";
@@ -31,7 +31,10 @@ export default function EditTaskScreen() {
   const [listOptions, setListOptions] = useState<{ id: string; name: string }[]>([]);
   const [user, setUser] = useState(auth.currentUser);
 
-  // Fetch task details from Firebase
+  // Subtasks state
+  const [subtasks, setSubtasks] = useState<{ id: string; idsubtask: string; name: string; completed: boolean }[]>([]);
+  const [newSubtaskName, setNewSubtaskName] = useState("");
+
   useEffect(() => {
     if (taskId) {
       const taskRef = ref(database, `tasks/${taskId}`);
@@ -67,7 +70,6 @@ export default function EditTaskScreen() {
             .filter((key) => data[key].userId === user.uid) // Filter by userId
             .map((key) => ({ id: key, name: data[key].name })); // Get listId and name
           setListOptions(lists);
-          console.log("Fetched lists:", lists);
         } else {
           setListOptions([]);
         }
@@ -76,8 +78,34 @@ export default function EditTaskScreen() {
     }
   }, [user]);
 
+  // Fetch subtasks for the current task
+  useEffect(() => {
+    if (taskId) {
+      const subtasksRef = ref(database, "subtasks");
+      const unsubscribe = onValue(subtasksRef, (snapshot) => {
+        const data = snapshot.val() || {};
+        const filteredSubtasks = Object.keys(data)
+          .filter((key) => data[key].idtask === taskId)
+          .map((key) => ({
+            id: key,
+            ...data[key],
+          }));
+        setSubtasks(filteredSubtasks);
+      });
+      return () => unsubscribe();
+    }
+  }, [taskId]);
+
   const toggleComplete = () => {
-    setCompleted(!completed);
+    const newStatus = !completed;
+    setCompleted(newStatus);
+
+    if (newStatus) {
+      subtasks.forEach((subtask) => {
+        const subtaskRef = ref(database, `subtasks/${subtask.id}`);
+        update(subtaskRef, { completed: newStatus });
+      });
+    }
   };
 
   const onDateChange = (event: any, selectedDate?: Date) => {
@@ -109,6 +137,36 @@ export default function EditTaskScreen() {
       Alert.alert("Error", "Failed to update task. Please try again.");
       console.error(error);
     }
+  };
+
+  const addSubtask = () => {
+    if (!newSubtaskName.trim()) {
+      Alert.alert("Validation Error", "Subtask name cannot be empty.");
+      return;
+    }
+
+    const subtasksRef = ref(database, "subtasks");
+    const newSubtaskRef = push(subtasksRef);
+    const subtaskId = newSubtaskRef.key;
+
+    if (subtaskId) {
+      set(newSubtaskRef, {
+        idsubtask: subtaskId,
+        idtask: taskId,
+        name: newSubtaskName,
+        completed: false,
+      }).then(() => setNewSubtaskName(""));
+    }
+  };
+
+  const toggleSubtaskComplete = (subtaskId: string, currentStatus: boolean) => {
+    const subtaskRef = ref(database, `subtasks/${subtaskId}`);
+    update(subtaskRef, { completed: !currentStatus });
+  };
+
+  const deleteSubtask = (subtaskId: string) => {
+    const subtaskRef = ref(database, `subtasks/${subtaskId}`);
+    remove(subtaskRef);
   };
 
   return (
@@ -152,6 +210,33 @@ export default function EditTaskScreen() {
         </Picker>
       </View>
 
+      {/* Subtasks Section */}
+      <Text style={styles.label}>Subtasks</Text>
+      <FlatList
+        data={subtasks}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.subtaskRow}>
+            <Switch
+              value={item.completed}
+              onValueChange={() => toggleSubtaskComplete(item.id, item.completed)}
+            />
+            <Text style={item.completed ? styles.completedText : styles.subtaskText}>
+              {item.name}
+            </Text>
+            <Button title="Delete" onPress={() => deleteSubtask(item.id)} />
+          </View>
+        )}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Add Subtask"
+        value={newSubtaskName}
+        onChangeText={setNewSubtaskName}
+      />
+      <Button title="Add Subtask" onPress={addSubtask} />
+
+      {/* Notes Section */}
       <TextInput
         style={styles.notesInput}
         placeholder="Add Notes"
@@ -197,5 +282,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: 15,
+  },
+  subtaskRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  subtaskText: {
+    flex: 1,
+    fontSize: 14,
+  },
+  completedText: {
+    flex: 1,
+    fontSize: 14,
+    textDecorationLine: "line-through",
   },
 });
