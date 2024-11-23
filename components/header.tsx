@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 5,
     width: "100%",
+    paddingTop: 20,
   },
   text: {
     width: "80%",

@@ -1,5 +1,7 @@
 import { Platform, StyleSheet, Text, View } from "react-native";
 import React, { useEffect } from "react";
+import { PaperProvider } from "react-native-paper";
+import Header from "@/components/header";
 
 const AllTasks = () => {
   useEffect(() => {
@@ -9,9 +11,12 @@ const AllTasks = () => {
   }, []);
 
   return (
-    <View>
-      <Text>All Tasks</Text>
-    </View>
+    <PaperProvider>
+      <Header title="All Tasks" />
+      <View>
+        <Text>All Tasks</Text>
+      </View>
+    </PaperProvider>
   );
 };
 
