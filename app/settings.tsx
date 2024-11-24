@@ -32,7 +32,6 @@ const settings = () => {
     auth
       .signOut()
       .then(() => {
-        console.log("User signed out successfully.");
         setUser(null);
         router.replace("/");
       })

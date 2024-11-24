@@ -3,6 +3,7 @@ import React from "react";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
 import { Menu, PaperProvider } from "react-native-paper";
 import { router } from "expo-router";
+import { auth } from "@/Config/firebaseConfig";
 
 type Props = {
   title: string;
@@ -14,7 +15,10 @@ const Header = (props: Props) => {
   const handSettings = () => {
     router.push("/settings");
   };
-  const handPress = () => {};
+  const handSignOut = () => {
+    auth.signOut();
+    router.replace("/");
+  };
 
   return (
     <>
@@ -42,7 +46,7 @@ const Header = (props: Props) => {
             leadingIcon={"cog"}
           />
           <Menu.Item
-            onPress={handPress}
+            onPress={handSignOut}
             title="Logout"
             leadingIcon={() => <AntDesign name="logout" size={20} />}
           />

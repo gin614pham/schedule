@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TextInput,
   Alert,
-  Switch,
   ScrollView,
   Platform,
   Modal,
@@ -27,10 +26,10 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { auth } from "@/Config/firebaseConfig";
 import { Button, Provider } from "react-native-paper";
 import Header from "@/components/header";
-import { Feather, FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import CustomRadioButton from "@/components/customRadioButton";
 import TaskItem from "@/components/taskItem";
+import { SubtaskInterface, TaskItemInterface } from "@/interfaces/types";
 
 type DropDownItem = {
   label: string;
@@ -38,11 +37,9 @@ type DropDownItem = {
 };
 
 export default function EditTaskScreen() {
-  const [myLists, setMyLists] = useState<{ id: string; name: string }[]>([]);
   const taskId = useSearchParams().get("taskId");
   const database = getDatabase();
   const [newTaskName, setNewTaskName] = useState("");
-  const [currentDate, setCurrentDate] = useState(new Date().toISOString());
   const [completed, setCompleted] = useState(false);
   const [notes, setNotes] = useState("");
   const [date, setDate] = useState(new Date());
@@ -55,10 +52,7 @@ export default function EditTaskScreen() {
 
   const [dueDate, setDueDate] = useState(new Date());
 
-  // Subtasks state
-  const [subtasks, setSubtasks] = useState<
-    { id: string; idsubtask: string; name: string; completed: boolean }[]
-  >([]);
+  const [subtasks, setSubtasks] = useState<SubtaskInterface[]>([]);
   const [newSubtaskName, setNewSubtaskName] = useState("");
   const [openModel, setOpenModel] = useState(false);
   const [listOptions, setListOptions] = useState<DropDownItem[]>([]);
@@ -72,7 +66,6 @@ export default function EditTaskScreen() {
             const taskData = snapshot.val();
             setNewTaskName(taskData.name);
             setCompleted(taskData.completed);
-            setCurrentDate(taskData.date);
             setNotes(taskData.notes || "");
             setDate(new Date(taskData.date));
             setListId(taskData.listId); // Set listId for dropdown
@@ -154,9 +147,9 @@ export default function EditTaskScreen() {
 
     try {
       const taskRef = ref(database, `tasks/${taskId}`);
-      await set(taskRef, {
+      await update(taskRef, {
         id: taskId,
-        listId: listId,
+        listId: listId || "",
         name: newTaskName,
         completed: completed,
         date: date.toISOString().split("T")[0],
@@ -251,11 +244,7 @@ export default function EditTaskScreen() {
     }
   };
 
-  const renderSubtasks = ({
-    item,
-  }: {
-    item: { id: string; name: string; completed: boolean };
-  }) => {
+  const renderSubtasks = ({ item }: { item: TaskItemInterface }) => {
     return (
       <View style={styles.subtaskContainer}>
         <TaskItem

@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useWindowDimensions } from "react-native";
 
 /**
@@ -62,7 +62,11 @@ export default function TabsLayout() {
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <Ionicons name="calendar" size={24} color={color} />
+            <MaterialCommunityIcons
+              name="calendar-week"
+              size={24}
+              color={color}
+            />
           ),
           animation: "shift",
         }}

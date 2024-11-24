@@ -1,8 +1,16 @@
-import CustomRadioButton from "@/components/customRadioButton";
 import Header from "@/components/header";
 import { router } from "expo-router";
 import { useSearchParams } from "expo-router/build/hooks";
-import { get, getDatabase, push, ref, set, update } from "firebase/database";
+import {
+  get,
+  getDatabase,
+  onValue,
+  push,
+  ref,
+  remove,
+  set,
+  update,
+} from "firebase/database";
 import { useEffect, useState } from "react";
 import {
   FlatList,
@@ -16,26 +24,35 @@ import {
   KeyboardAvoidingView,
   Keyboard,
 } from "react-native";
-import { Feather, AntDesign } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 import { PaperProvider } from "react-native-paper";
 import InputNewTask from "@/components/inputNewTask";
 import TaskItem from "@/components/taskItem";
+import { TaskInterface, TaskItemInterface } from "@/interfaces/types";
+import { auth } from "@/Config/firebaseConfig";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default function TaskScreen() {
   const listId = useSearchParams().get("listId");
-  const [tasks, setTasks] = useState<
-    {
-      id: string;
-      name: string;
-      completed: boolean;
-      date: string;
-      lastUpdated: string;
-    }[]
-  >([]);
+  const [tasks, setTasks] = useState<TaskInterface[]>([]);
   const [newTaskName, setNewTaskName] = useState("");
   const [listName, setListName] = useState("");
   const [withScreen, setWithScreen] = useState(Dimensions.get("window").width);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [user, setUser] = useState(auth.currentUser);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+      } else {
+        setUser(null);
+        router.replace("/");
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const updateScreenSize = Dimensions.addEventListener(
@@ -71,20 +88,21 @@ export default function TaskScreen() {
     const reference = ref(db, `tasks`);
 
     try {
-      const snapshot = await get(reference);
-      const data = snapshot.val();
-      if (data) {
-        const taskList = Object.keys(data)
-          .map((key) => ({
-            id: key,
-            ...data[key],
-          }))
-          .filter((task) => task.listId === listId);
+      await onValue(reference, async (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const taskList = Object.keys(data)
+            .map((key) => ({
+              id: key,
+              ...data[key],
+            }))
+            .filter((task) => task.listId === listId);
 
-        setTasks(taskList);
-      } else {
-        setTasks([]);
-      }
+          setTasks(taskList);
+        } else {
+          setTasks([]);
+        }
+      });
 
       const listRef = ref(db, `lists/${listId}`);
       const listSnapshot = await get(listRef);
@@ -108,14 +126,14 @@ export default function TaskScreen() {
     const db = getDatabase();
     const taskRef = ref(db, `tasks/${taskId}`);
 
-    try {
-      await update(taskRef, { deleted: true });
-      console.log("Task deleted!");
-      fetchTasks();
-    } catch (error) {
-      console.error("Error deleting task:", error);
-      Alert.alert("Error", "Failed to delete task.");
-    }
+    await remove(taskRef)
+      .then(() => {
+        console.log("Task deleted!");
+        fetchTasks();
+      })
+      .catch((error) => {
+        console.error("Error deleting task: ", error);
+      });
   };
 
   const handleShowInput = () => {
@@ -134,11 +152,7 @@ export default function TaskScreen() {
     });
   };
 
-  const renderTask = ({
-    item,
-  }: {
-    item: { id: string; name: string; completed: boolean; lastUpdated: string };
-  }) => (
+  const renderTask = ({ item }: { item: TaskItemInterface }) => (
     <View style={styles.taskContainer}>
       <TaskItem
         item={item}
@@ -191,9 +205,12 @@ export default function TaskScreen() {
         time: onlyTime,
         lastUpdated: currentDate,
         deadline: currentDate,
+        notes: "",
+        userId: user?.uid,
       });
 
       console.log("Task added!");
+      console.log(user?.uid);
       setNewTaskName("");
       fetchTasks();
     } catch (error) {

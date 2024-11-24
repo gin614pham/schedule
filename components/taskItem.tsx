@@ -8,20 +8,19 @@ import {
 import React from "react";
 import CustomRadioButton from "./customRadioButton";
 import { Feather } from "@expo/vector-icons";
+import { TaskItemInterface } from "@/interfaces/types";
 
 type Props = {
-  item: {
-    id: string;
-    name: string;
-    completed: boolean;
-  };
+  item: TaskItemInterface;
+  listID?: string;
   toggleTaskCompletion: (id: string, completed: boolean) => void;
-  handleTaskPress?: (id: string) => void;
+  handleTaskPress?: (id: string, listId: string) => void;
   handDeleteTask: (id: string) => void;
 };
 
 const TaskItem = ({
   item,
+  listID,
   toggleTaskCompletion,
   handleTaskPress,
   handDeleteTask,
@@ -35,7 +34,7 @@ const TaskItem = ({
       />
       <TouchableOpacity
         style={styles.taskContent}
-        onPress={() => handleTaskPress?.(item.id)}
+        onPress={() => handleTaskPress?.(item.id, listID || "")}
       >
         <Text style={[styles.taskText, item.completed && { color: "gray" }]}>
           {item.name}

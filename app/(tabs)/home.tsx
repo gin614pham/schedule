@@ -13,13 +13,16 @@ import {
   Platform,
 } from "react-native";
 import { getDatabase, ref, push, set, onValue } from "firebase/database";
-import { auth } from "../../Config/firebaseConfig";
+import { auth } from "@/Config/firebaseConfig";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { router } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { ListNameInterface } from "@/interfaces/types";
+import { COLORS, FONT_SIZE } from "@/constants/theme";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default function Home() {
-  const [myLists, setMyLists] = useState<{ id: string; name: string }[]>([]);
+  const [myLists, setMyLists] = useState<ListNameInterface[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
@@ -28,9 +31,7 @@ export default function Home() {
   const [numColumns, setNumColumns] = useState(2);
   const withScreen = Dimensions.get("window").width;
   const [withItemList, setWithItemList] = useState("48%") as any;
-  const [sharedLists, setSharedLists] = useState<
-    { id: string; name: string }[]
-  >([]);
+  const [sharedLists, setSharedLists] = useState<ListNameInterface[]>([]);
 
   useEffect(() => {
     if (Platform.OS === "web") {
@@ -88,7 +89,16 @@ export default function Home() {
   }, [withScreen]);
 
   useEffect(() => {
-    setUser(auth.currentUser);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+      } else {
+        setUser(null);
+        router.replace("/");
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   // Fetch data from Realtime Database
@@ -103,7 +113,6 @@ export default function Home() {
           .filter((key) => data[key].userId === user?.uid) // Filter by userId
           .map((key) => ({ id: key, name: data[key].name })); // Get listId and name
         setMyLists(lists);
-        console.log("Fetched data:", lists);
       } else {
         setMyLists([]);
       }
@@ -111,7 +120,7 @@ export default function Home() {
 
     // Cleanup listener when component unmounts or when the effect re-runs
     return () => unsubscribe();
-  }, [user?.uid]);
+  }, [user]);
 
   const addNewList = async () => {
     if (!newListName.trim()) {
@@ -303,17 +312,17 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: COLORS.background,
     padding: 10,
   },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: COLORS.background,
     padding: 10,
     marginVertical: 10,
     borderRadius: 25,
-    shadowColor: "#000",
+    shadowColor: COLORS.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -322,36 +331,36 @@ const styles = StyleSheet.create({
   searchBarInput: {
     flex: 1,
     padding: 5,
-    fontSize: 16,
-    color: "#333",
+    fontSize: FONT_SIZE.medium,
+    color: COLORS.placeholder,
   },
   searchIcon: {
     marginRight: 10,
   },
   banner: {
-    backgroundColor: "#e6f2ff",
+    backgroundColor: COLORS.bannerBackground,
     padding: 15,
     borderRadius: 10,
     marginBottom: 20,
   },
   bannerText: {
-    fontSize: 16,
-    color: "#007bff",
+    fontSize: FONT_SIZE.medium,
+    color: COLORS.link,
     marginBottom: 10,
   },
   bannerButton: {
-    backgroundColor: "#007bff",
+    backgroundColor: COLORS.blue,
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 5,
     alignSelf: "flex-start",
   },
   bannerButtonText: {
-    color: "white",
+    color: COLORS.white,
     fontWeight: "bold",
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: FONT_SIZE.large,
     fontWeight: "bold",
     marginVertical: 10,
   },
@@ -372,13 +381,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   listContainer: {
-    backgroundColor: "white",
+    backgroundColor: COLORS.background,
     height: 100,
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 10,
-    shadowColor: "#000",
+    shadowColor: COLORS.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -386,70 +395,26 @@ const styles = StyleSheet.create({
     maxWidth: 300,
   },
   listText: {
-    fontSize: 16,
+    fontSize: FONT_SIZE.medium,
     fontWeight: "bold",
-    color: "#333",
-  },
-  addButton: {
-    marginVertical: 10,
-    padding: 15,
-    backgroundColor: "#007bff",
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  addButtonText: {
-    fontSize: 16,
-    color: "white",
-    fontWeight: "bold",
-  },
-  sharedSpace: {
-    backgroundColor: "white",
-    height: 100,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  sharedText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#007bff",
-  },
-  tabBar: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingVertical: 15,
-    backgroundColor: "white",
-    borderTopWidth: 1,
-    borderColor: "#ddd",
-    marginTop: 20,
-  },
-  tabBarItem: {
-    fontSize: 14,
-    color: "#007bff",
-    fontWeight: "bold",
+    color: COLORS.subtext,
   },
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: COLORS.overlay,
     flexGrow: 1,
   },
   modalContainer: {
     flexDirection: "column",
-    backgroundColor: "white",
+    backgroundColor: COLORS.background,
     borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
     width: "80%",
     height: "30%",
-    shadowColor: "#000",
+    shadowColor: COLORS.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -460,7 +425,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
-    backgroundColor: "#ededed",
+    backgroundColor: COLORS.subBackground,
     flexGrow: 9,
     borderWidth: 0,
   },
@@ -479,19 +444,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   modalButtonText: {
-    fontSize: 16,
+    fontSize: FONT_SIZE.medium,
     fontWeight: "bold",
-    color: "#007bff",
+    color: COLORS.blue,
   },
   modalButtonTextDisabled: {
-    fontSize: 16,
+    fontSize: FONT_SIZE.medium,
     fontWeight: "bold",
-    color: "#b0b0b0",
+    color: COLORS.disabled,
   },
   modalSeparator: {
     height: "90%",
     width: 1,
-    backgroundColor: "#b0b0b0",
+    backgroundColor: COLORS.disabled,
     alignSelf: "center",
   },
 });
