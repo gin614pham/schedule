@@ -8,13 +8,10 @@ import {
 import React from "react";
 import CustomRadioButton from "./customRadioButton";
 import { Feather } from "@expo/vector-icons";
+import { TaskItemInterface } from "@/interfaces/types";
 
 type Props = {
-  item: {
-    id: string;
-    name: string;
-    completed: boolean;
-  };
+  item: TaskItemInterface;
   toggleTaskCompletion: (id: string, completed: boolean) => void;
   handleTaskPress?: (id: string) => void;
   handDeleteTask: (id: string) => void;

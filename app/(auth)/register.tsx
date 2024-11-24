@@ -8,10 +8,12 @@ import {
   TextInput,
   TouchableOpacity,
   Platform,
+  Alert,
 } from "react-native";
 import { router } from "expo-router";
 
 import { auth } from "../../Config/firebaseConfig";
+import { COLORS, FONT_SIZE } from "@/constants/theme";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -33,10 +35,13 @@ export default function Register() {
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      console.log("User registered successfully");
-      // switch to the login screen
-      router.replace("/(tabs)/home");
+      await createUserWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          router.replace("/(tabs)/home");
+        })
+        .catch((error) => {
+          Alert.alert("Error", error.message);
+        });
     } catch (error) {
       console.error(error);
     }
@@ -90,9 +95,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: COLORS.background,
   },
   title: {
-    fontSize: 20,
+    fontSize: FONT_SIZE.xLarge,
     fontWeight: "bold",
   },
   form_login: {
@@ -106,17 +112,17 @@ const styles = StyleSheet.create({
     margin: 12,
     borderWidth: 1,
     padding: 10,
-    borderColor: "gray",
+    borderColor: COLORS.border,
     borderRadius: 10,
   },
   button: {
     width: "75%",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#DDDDDD",
+    backgroundColor: COLORS.background,
     padding: 10,
     borderWidth: 1,
-    borderColor: "gray",
+    borderColor: COLORS.border,
     borderRadius: 10,
   },
   buttonText: {
@@ -130,6 +136,6 @@ const styles = StyleSheet.create({
   },
   linkText: {
     fontSize: 14,
-    color: "#2e78b7",
+    color: COLORS.link,
   },
 });

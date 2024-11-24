@@ -1,4 +1,3 @@
-import CustomRadioButton from "@/components/customRadioButton";
 import Header from "@/components/header";
 import { router } from "expo-router";
 import { useSearchParams } from "expo-router/build/hooks";
@@ -16,22 +15,15 @@ import {
   KeyboardAvoidingView,
   Keyboard,
 } from "react-native";
-import { Feather, AntDesign } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 import { PaperProvider } from "react-native-paper";
 import InputNewTask from "@/components/inputNewTask";
 import TaskItem from "@/components/taskItem";
+import { TaskInterface, TaskItemInterface } from "@/interfaces/types";
 
 export default function TaskScreen() {
   const listId = useSearchParams().get("listId");
-  const [tasks, setTasks] = useState<
-    {
-      id: string;
-      name: string;
-      completed: boolean;
-      date: string;
-      lastUpdated: string;
-    }[]
-  >([]);
+  const [tasks, setTasks] = useState<TaskInterface[]>([]);
   const [newTaskName, setNewTaskName] = useState("");
   const [listName, setListName] = useState("");
   const [withScreen, setWithScreen] = useState(Dimensions.get("window").width);
@@ -134,11 +126,7 @@ export default function TaskScreen() {
     });
   };
 
-  const renderTask = ({
-    item,
-  }: {
-    item: { id: string; name: string; completed: boolean; lastUpdated: string };
-  }) => (
+  const renderTask = ({ item }: { item: TaskItemInterface }) => (
     <View style={styles.taskContainer}>
       <TaskItem
         item={item}
