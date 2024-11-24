@@ -22,6 +22,18 @@ type TaskInterface = {
   completed: boolean;
   date: string;
   lastUpdated: string;
+  time: string;
+};
+
+type AgendaEventInterface = {
+  id: string;
+  title: string;
+  hour: string;
+};
+
+type AgendaDataInterface = {
+  title: string;
+  data: AgendaEventInterface[];
 };
 
 export {
@@ -29,4 +41,6 @@ export {
   ListNameInterface,
   SubtaskInterface,
   TaskInterface,
+  AgendaEventInterface,
+  AgendaDataInterface,
 };

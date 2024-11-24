@@ -13,12 +13,13 @@ import {
   Platform,
 } from "react-native";
 import { getDatabase, ref, push, set, onValue } from "firebase/database";
-import { auth } from "../../Config/firebaseConfig";
+import { auth } from "@/Config/firebaseConfig";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { router } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { ListNameInterface } from "@/interfaces/types";
 import { COLORS, FONT_SIZE } from "@/constants/theme";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default function Home() {
   const [myLists, setMyLists] = useState<ListNameInterface[]>([]);
@@ -88,7 +89,16 @@ export default function Home() {
   }, [withScreen]);
 
   useEffect(() => {
-    setUser(auth.currentUser);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+      } else {
+        setUser(null);
+        router.replace("/");
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   // Fetch data from Realtime Database
@@ -103,7 +113,6 @@ export default function Home() {
           .filter((key) => data[key].userId === user?.uid) // Filter by userId
           .map((key) => ({ id: key, name: data[key].name })); // Get listId and name
         setMyLists(lists);
-        console.log("Fetched data:", lists);
       } else {
         setMyLists([]);
       }
@@ -111,7 +120,7 @@ export default function Home() {
 
     // Cleanup listener when component unmounts or when the effect re-runs
     return () => unsubscribe();
-  }, [user?.uid]);
+  }, [user]);
 
   const addNewList = async () => {
     if (!newListName.trim()) {

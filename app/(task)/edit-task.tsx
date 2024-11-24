@@ -147,9 +147,9 @@ export default function EditTaskScreen() {
 
     try {
       const taskRef = ref(database, `tasks/${taskId}`);
-      await set(taskRef, {
+      await update(taskRef, {
         id: taskId,
-        listId: listId,
+        listId: listId || "",
         name: newTaskName,
         completed: completed,
         date: date.toISOString().split("T")[0],

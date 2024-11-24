@@ -15,7 +15,7 @@ const Header = (props: Props) => {
   const handSettings = () => {
     router.push("/settings");
   };
-  const handPress = () => {
+  const handSignOut = () => {
     auth.signOut();
     router.replace("/");
   };
@@ -46,7 +46,7 @@ const Header = (props: Props) => {
             leadingIcon={"cog"}
           />
           <Menu.Item
-            onPress={handPress}
+            onPress={handSignOut}
             title="Logout"
             leadingIcon={() => <AntDesign name="logout" size={20} />}
           />
