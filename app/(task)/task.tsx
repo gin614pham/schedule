@@ -19,6 +19,7 @@ import {
 import { Feather, AntDesign } from "@expo/vector-icons";
 import { PaperProvider } from "react-native-paper";
 import InputNewTask from "@/components/inputNewTask";
+import TaskItem from "@/components/taskItem";
 
 export default function TaskScreen() {
   const listId = useSearchParams().get("listId");
@@ -139,29 +140,12 @@ export default function TaskScreen() {
     item: { id: string; name: string; completed: boolean; lastUpdated: string };
   }) => (
     <View style={styles.taskContainer}>
-      <CustomRadioButton
-        checked={item.completed}
-        onPress={() => toggleTaskCompletion(item.id, !item.completed)}
+      <TaskItem
+        item={item}
+        toggleTaskCompletion={toggleTaskCompletion}
+        handleTaskPress={handleTaskPress}
+        handDeleteTask={handDeleteTask}
       />
-      <TouchableOpacity
-        style={styles.taskContent}
-        onPress={() => handleTaskPress(item.id)}
-      >
-        <Text style={[styles.taskText, item.completed && { color: "gray" }]}>
-          {item.name}
-        </Text>
-        {item.completed && (
-          <>
-            <View style={[styles.taskSeparator, { width: withScreen - 175 }]} />
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => handDeleteTask(item.id)}
-            >
-              <Feather name="delete" size={24} color="gray" />
-            </TouchableOpacity>
-          </>
-        )}
-      </TouchableOpacity>
     </View>
   );
 
@@ -188,7 +172,14 @@ export default function TaskScreen() {
     const db = getDatabase();
     const tasksRef = ref(db, `tasks`);
     const newTaskRef = push(tasksRef);
-    const currentDate = new Date().toLocaleString();
+    const currentDate = new Date().toISOString();
+
+    const onlyDate = currentDate.split("T")[0];
+    const onlyTime = new Date().toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: false,
+    });
 
     try {
       await set(newTaskRef, {
@@ -196,7 +187,8 @@ export default function TaskScreen() {
         listId: listId,
         name: newTaskName,
         completed: false,
-        date: currentDate,
+        date: onlyDate,
+        time: onlyTime,
         lastUpdated: currentDate,
         deadline: currentDate,
       });

@@ -20,9 +20,6 @@ const Header = (props: Props) => {
     <>
       <View style={styles.container}>
         <Text style={styles.text}>{props.title}</Text>
-        {/* <TouchableOpacity style={styles.button}>
-          <Ionicons name="ellipsis-horizontal-circle" size={24} color="black" />
-        </TouchableOpacity> */}
         <Menu
           visible={visible}
           onDismiss={() => setVisible(false)}
@@ -67,6 +64,9 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     width: "100%",
     paddingTop: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "lightgrey",
+    marginBottom: 10,
   },
   text: {
     width: "80%",

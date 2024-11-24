@@ -27,6 +27,7 @@ const InputNewTask = (props: Props) => {
           value={props.title}
           autoFocus
           onBlur={props.handleHideInput}
+          onSubmitEditing={props.onSubmit}
         />
         <TouchableOpacity
           style={[styles.button, { opacity: !props.title ? 0.5 : 1 }]}

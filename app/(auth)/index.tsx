@@ -1,5 +1,5 @@
 import { Link, router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const passwordRef = useRef<TextInput>(null);
 
   useEffect(() => {
     if (Platform.OS === "web") {
@@ -47,6 +48,8 @@ export default function Login() {
           autoComplete="off"
           value={email}
           onChangeText={(text) => setEmail(text)}
+          returnKeyType="next"
+          onSubmitEditing={() => passwordRef.current?.focus()}
         />
         <TextInput
           style={styles.input}
@@ -57,6 +60,8 @@ export default function Login() {
           autoComplete="off"
           value={password}
           onChangeText={(text) => setPassword(text)}
+          ref={passwordRef}
+          onSubmitEditing={handleLogin}
         />
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text>Login</Text>

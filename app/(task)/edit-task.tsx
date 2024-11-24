@@ -1,21 +1,41 @@
 import {
   FlatList,
   Text,
-  TouchableOpacity,
   View,
   StyleSheet,
   TextInput,
-  Button,
-  Modal,
   Alert,
   Switch,
+  ScrollView,
+  Platform,
+  Modal,
+  TouchableOpacity,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
 import { useSearchParams } from "expo-router/build/hooks";
-import { getDatabase, ref, set, get, onValue, push, remove, update } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  set,
+  get,
+  onValue,
+  push,
+  remove,
+  update,
+} from "firebase/database";
 import React, { useEffect, useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { auth } from "@/Config/firebaseConfig";
+import { Button, Provider } from "react-native-paper";
+import Header from "@/components/header";
+import { Feather, FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import CustomRadioButton from "@/components/customRadioButton";
+import TaskItem from "@/components/taskItem";
+
+type DropDownItem = {
+  label: string;
+  value: string;
+};
 
 export default function EditTaskScreen() {
   const [myLists, setMyLists] = useState<{ id: string; name: string }[]>([]);
@@ -25,15 +45,23 @@ export default function EditTaskScreen() {
   const [currentDate, setCurrentDate] = useState(new Date().toISOString());
   const [completed, setCompleted] = useState(false);
   const [notes, setNotes] = useState("");
-  const [deadline, setDeadline] = useState(new Date());
+  const [date, setDate] = useState(new Date());
+  const [time, setTime] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [listId, setListId] = useState(""); // To store selected listId
-  const [listOptions, setListOptions] = useState<{ id: string; name: string }[]>([]);
+
   const [user, setUser] = useState(auth.currentUser);
+  const [modalDateTimePicker, setModalDateTimePicker] = useState("date");
+
+  const [dueDate, setDueDate] = useState(new Date());
 
   // Subtasks state
-  const [subtasks, setSubtasks] = useState<{ id: string; idsubtask: string; name: string; completed: boolean }[]>([]);
+  const [subtasks, setSubtasks] = useState<
+    { id: string; idsubtask: string; name: string; completed: boolean }[]
+  >([]);
   const [newSubtaskName, setNewSubtaskName] = useState("");
+  const [openModel, setOpenModel] = useState(false);
+  const [listOptions, setListOptions] = useState<DropDownItem[]>([]);
 
   useEffect(() => {
     if (taskId) {
@@ -46,8 +74,9 @@ export default function EditTaskScreen() {
             setCompleted(taskData.completed);
             setCurrentDate(taskData.date);
             setNotes(taskData.notes || "");
-            setDeadline(new Date(taskData.deadline));
+            setDate(new Date(taskData.date));
             setListId(taskData.listId); // Set listId for dropdown
+            setTime(taskData.time);
           } else {
             Alert.alert("Error", "Task not found.");
           }
@@ -59,7 +88,7 @@ export default function EditTaskScreen() {
     }
   }, [taskId]);
 
-  // Fetch lists for the current user
+  // Fetch lists for the current userJ
   useEffect(() => {
     if (user) {
       const reference = ref(database, "lists");
@@ -68,7 +97,7 @@ export default function EditTaskScreen() {
         if (data) {
           const lists = Object.keys(data)
             .filter((key) => data[key].userId === user.uid) // Filter by userId
-            .map((key) => ({ id: key, name: data[key].name })); // Get listId and name
+            .map((key) => ({ value: key, label: data[key].name })); // Get listId and name
           setListOptions(lists);
         } else {
           setListOptions([]);
@@ -80,6 +109,14 @@ export default function EditTaskScreen() {
 
   // Fetch subtasks for the current task
   useEffect(() => {
+    fetchSubTasks();
+  }, [taskId]);
+
+  useEffect(() => {
+    setDueDate(new Date(date.toISOString().split("T")[0] + "T" + time));
+  }, [date, time]);
+
+  const fetchSubTasks = () => {
     if (taskId) {
       const subtasksRef = ref(database, "subtasks");
       const unsubscribe = onValue(subtasksRef, (snapshot) => {
@@ -92,9 +129,10 @@ export default function EditTaskScreen() {
           }));
         setSubtasks(filteredSubtasks);
       });
+      console.log("Subtasks fetched successfully.", subtasks);
       return () => unsubscribe();
     }
-  }, [taskId]);
+  };
 
   const toggleComplete = () => {
     const newStatus = !completed;
@@ -106,12 +144,6 @@ export default function EditTaskScreen() {
         update(subtaskRef, { completed: newStatus });
       });
     }
-  };
-
-  const onDateChange = (event: any, selectedDate?: Date) => {
-    const currentDate = selectedDate || deadline;
-    setShowDatePicker(false);
-    setDeadline(currentDate);
   };
 
   const updateTaskInFirebase = async () => {
@@ -127,12 +159,23 @@ export default function EditTaskScreen() {
         listId: listId,
         name: newTaskName,
         completed: completed,
-        date: currentDate,
+        date: date.toISOString().split("T")[0],
+        time: time,
         lastUpdated: new Date().toISOString(),
-        deadline: deadline.toISOString(),
+        deadline: date.toISOString(),
         notes: notes,
       });
-      Alert.alert("Success", "Task updated successfully!");
+      Alert.alert("Success", "Task updated successfully!", [
+        {
+          text: "OK",
+          onPress: () => {
+            router.back();
+          },
+        },
+      ]);
+      if (Platform.OS === "web") {
+        router.back();
+      }
     } catch (error) {
       Alert.alert("Error", "Failed to update task. Please try again.");
       console.error(error);
@@ -159,9 +202,16 @@ export default function EditTaskScreen() {
     }
   };
 
-  const toggleSubtaskComplete = (subtaskId: string, currentStatus: boolean) => {
+  const toggleSubtaskComplete = async (
+    subtaskId: string,
+    currentStatus: boolean
+  ) => {
+    console.log(currentStatus);
     const subtaskRef = ref(database, `subtasks/${subtaskId}`);
-    update(subtaskRef, { completed: !currentStatus });
+
+    await update(subtaskRef, { completed: currentStatus }).then(() => {
+      fetchSubTasks();
+    });
   };
 
   const deleteSubtask = (subtaskId: string) => {
@@ -169,104 +219,332 @@ export default function EditTaskScreen() {
     remove(subtaskRef);
   };
 
+  const showDateTimePicker = (currentMode: string) => {
+    setShowDatePicker(true);
+    setModalDateTimePicker(currentMode);
+  };
+
+  const handleDatePicker = () => {
+    showDateTimePicker("date");
+  };
+
+  const handleTimePicker = () => {
+    showDateTimePicker("time");
+  };
+
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    if (modalDateTimePicker === "date") {
+      const currentDate = selectedDate || date;
+      setShowDatePicker(false);
+      setDate(currentDate);
+    } else if (modalDateTimePicker === "time") {
+      const currentTime = selectedDate || time;
+      setShowDatePicker(false);
+      console.log(currentTime);
+      setTime(
+        currentTime.toLocaleString("en-US", {
+          hour: "numeric",
+          minute: "numeric",
+          hour12: false,
+        })
+      );
+    }
+  };
+
+  const renderSubtasks = ({
+    item,
+  }: {
+    item: { id: string; name: string; completed: boolean };
+  }) => {
+    return (
+      <View style={styles.subtaskContainer}>
+        <TaskItem
+          item={item}
+          toggleTaskCompletion={toggleSubtaskComplete}
+          handDeleteTask={deleteSubtask}
+        />
+      </View>
+    );
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Edit Task</Text>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Task Name"
-        value={newTaskName}
-        onChangeText={setNewTaskName}
-      />
-
-      <View style={styles.row}>
-        <Text style={styles.label}>Completed:</Text>
-        <Switch value={completed} onValueChange={toggleComplete} />
-      </View>
-
-      <View>
-        <Text style={styles.label}>Deadline: {deadline.toLocaleDateString()}</Text>
-        <Button title="Select Deadline" onPress={() => setShowDatePicker(true)} />
-        {showDatePicker && (
-          <DateTimePicker
-            value={deadline}
-            mode="date"
-            display="default"
-            onChange={onDateChange}
-          />
-        )}
-      </View>
-
-      <View style={styles.row}>
-        <Text style={styles.label}>Select List:</Text>
-        <Picker
-          selectedValue={listId}
-          onValueChange={(itemValue) => setListId(itemValue)}
-        >
-          {listOptions.map((list) => (
-            <Picker.Item key={list.id} label={list.name} value={list.id} />
-          ))}
-        </Picker>
-      </View>
-
-      {/* Subtasks Section */}
-      <Text style={styles.label}>Subtasks</Text>
-      <FlatList
-        data={subtasks}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.subtaskRow}>
-            <Switch
-              value={item.completed}
-              onValueChange={() => toggleSubtaskComplete(item.id, item.completed)}
+    <Provider>
+      <View style={styles.container}>
+        <Header title="Edit Task" />
+        <ScrollView style={styles.scrollContainer} nestedScrollEnabled>
+          <View style={styles.formContainer}>
+            <TextInput
+              style={styles.titleInput}
+              placeholder="Task Name"
+              value={newTaskName}
+              onChangeText={setNewTaskName}
             />
-            <Text style={item.completed ? styles.completedText : styles.subtaskText}>
-              {item.name}
-            </Text>
-            <Button title="Delete" onPress={() => deleteSubtask(item.id)} />
+
+            <Button
+              icon={() => (
+                <Ionicons name="checkmark-done" size={24} color="#007bff" />
+              )}
+              mode="contained-tonal"
+              onPress={toggleComplete}
+              style={styles.button}
+              rippleColor={"#6fb2fa"}
+              buttonColor="white"
+              contentStyle={styles.buttonContent}
+            >
+              Toggle Completed
+            </Button>
+
+            {Platform.OS === "web" ? (
+              <>
+                <input
+                  type="date"
+                  value={
+                    date.toISOString() !== "Invalid Date"
+                      ? date.toISOString().split("T")[0]
+                      : ""
+                  }
+                  onChange={(event) => setDate(new Date(event.target.value))}
+                  style={styles.input}
+                  placeholder="Start At"
+                />
+                <input
+                  type="time"
+                  value={time}
+                  onChange={(event) => setTime(event.target.value)}
+                  style={styles.input}
+                />
+              </>
+            ) : (
+              <>
+                <View style={styles.rowButton}>
+                  <Button
+                    icon={() => (
+                      <Ionicons
+                        name="notifications-outline"
+                        size={24}
+                        color="#f81e1e"
+                      />
+                    )}
+                    mode="contained-tonal"
+                    onPress={() => handleDatePicker()}
+                    style={styles.button}
+                    rippleColor={"#6fb2fa"}
+                    buttonColor="white"
+                    contentStyle={styles.buttonContent}
+                  >
+                    Start At{" "}
+                    {date.toLocaleDateString(undefined, {
+                      weekday: "short",
+                      day: "numeric",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
+                  </Button>
+                  <Button
+                    icon={() => (
+                      <Ionicons name="time-outline" size={24} color="#f81e1e" />
+                    )}
+                    mode="contained-tonal"
+                    onPress={() => handleTimePicker()}
+                    style={styles.button}
+                    rippleColor={"#6fb2fa"}
+                    buttonColor="white"
+                    contentStyle={styles.buttonContent}
+                  >
+                    Time {time}
+                  </Button>
+                </View>
+                {showDatePicker && (
+                  <DateTimePicker
+                    testID="dateTimePicker"
+                    value={isNaN(dueDate.getTime()) ? new Date() : dueDate}
+                    mode={modalDateTimePicker === "date" ? "date" : "time"}
+                    is24Hour
+                    onChange={onDateChange}
+                  />
+                )}
+              </>
+            )}
+            <Button
+              icon={() => (
+                <FontAwesome5 name="list-alt" size={24} color="#e3fb2e" />
+              )}
+              mode="contained-tonal"
+              onPress={() => setOpenModel(true)}
+              style={styles.button}
+              rippleColor={"#6fb2fa"}
+              buttonColor="white"
+              contentStyle={styles.buttonContent}
+            >
+              {listOptions.find((item) => item.value === listId)?.label ||
+                "Select List"}
+            </Button>
+
+            {/* Subtasks Section */}
+            <Text style={styles.label}>Subtasks</Text>
+            <FlatList
+              data={subtasks}
+              scrollEnabled={false}
+              keyExtractor={(item) => item.id}
+              renderItem={renderSubtasks}
+            />
+            <TextInput
+              style={[styles.input, { borderStyle: "dashed" }]}
+              placeholder="Add Subtask"
+              value={newSubtaskName}
+              onChangeText={setNewSubtaskName}
+              onSubmitEditing={addSubtask}
+            />
+            <Button
+              icon={() => (
+                <Ionicons name="add-circle-outline" size={24} color="#f81e1e" />
+              )}
+              mode="contained-tonal"
+              onPress={addSubtask}
+              style={styles.button}
+              rippleColor={"#6fb2fa"}
+              buttonColor="white"
+              contentStyle={[styles.buttonContent]}
+            >
+              Add Subtask
+            </Button>
+            {/* Notes Section */}
+            <Text style={styles.label}>Note</Text>
+            <TextInput
+              style={styles.notesInput}
+              placeholder="Add Notes"
+              value={notes}
+              onChangeText={setNotes}
+              multiline
+            />
           </View>
-        )}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Add Subtask"
-        value={newSubtaskName}
-        onChangeText={setNewSubtaskName}
-      />
-      <Button title="Add Subtask" onPress={addSubtask} />
-
-      {/* Notes Section */}
-      <TextInput
-        style={styles.notesInput}
-        placeholder="Add Notes"
-        value={notes}
-        onChangeText={setNotes}
-        multiline
-      />
-
-      <Button title="Save Task" onPress={updateTaskInFirebase} />
-    </View>
+          <Modal
+            visible={openModel}
+            animationType="slide"
+            onRequestClose={() => setOpenModel(false)}
+            transparent
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContainer}>
+                <FlatList
+                  style={styles.modalList}
+                  data={listOptions}
+                  keyExtractor={(item) => item.value}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.modalItem}
+                      onPress={() => {
+                        setListId(item.value);
+                        setOpenModel(false);
+                      }}
+                    >
+                      <Text>{item.label}</Text>
+                      {item.value === listId && (
+                        <Ionicons name="checkmark" size={24} color="green" />
+                      )}
+                    </TouchableOpacity>
+                  )}
+                  ItemSeparatorComponent={() => (
+                    <View style={styles.modalSeparator} />
+                  )}
+                  ListHeaderComponent={() => (
+                    <View style={styles.modalHeader}>
+                      <TouchableOpacity
+                        style={styles.modalButton}
+                        onPress={() => setOpenModel(false)}
+                      >
+                        <Ionicons name="close" size={24} color="gray" />
+                      </TouchableOpacity>
+                      <Text style={styles.modalHeaderTitle}>List</Text>
+                    </View>
+                  )}
+                />
+              </View>
+            </View>
+          </Modal>
+        </ScrollView>
+        <Button
+          mode="contained-tonal"
+          onPress={updateTaskInFirebase}
+          style={[styles.button, { width: "100%" }]}
+          rippleColor={"#6fb2fa"}
+          buttonColor="#0ed50e"
+          contentStyle={[styles.saveButton]}
+          textColor="black"
+          icon={() => (
+            <Ionicons name="save-outline" size={24} color="#2592ff" />
+          )}
+        >
+          Save
+        </Button>
+      </View>
+    </Provider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#f9f9f9",
+    padding: 10,
+    backgroundColor: "white",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  scrollContainer: {
+    flex: 1,
+    width: "100%",
+    padding: 10,
+    backgroundColor: "white",
+    flexDirection: "column",
+    gap: 10,
+  },
+  formContainer: {
+    flex: 1,
+    width: "100%",
+    padding: 10,
+    backgroundColor: "white",
+    flexDirection: "column",
+    gap: 10,
+  },
+  button: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
   },
   label: {
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 8,
+    marginVertical: 8,
+    textTransform: "uppercase",
+  },
+  titleInput: {
+    fontSize: 32,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "left",
+    color: "black",
+    paddingStart: 10,
+    width: "100%",
   },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
     padding: 10,
     borderRadius: 5,
-    marginBottom: 15,
+    marginBottom: 10,
   },
   notesInput: {
     borderWidth: 1,
@@ -283,10 +561,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 15,
   },
+  rowButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+  },
   subtaskRow: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 10,
+    gap: 10,
   },
   subtaskText: {
     flex: 1,
@@ -296,5 +581,91 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     textDecorationLine: "line-through",
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContainer: {
+    flexDirection: "column",
+    backgroundColor: "white",
+    borderRadius: 15,
+    width: "80%",
+    maxHeight: "60%",
+    padding: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  modalList: {
+    width: "100%",
+  },
+  modalItem: {
+    padding: 10,
+    fontSize: 16,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "space-between",
+    flexDirection: "row",
+    gap: 10,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    gap: 10,
+    width: "100%",
+    fontSize: 20,
+    fontWeight: "bold",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  modalSeparator: {
+    height: 1,
+    backgroundColor: "lightgrey",
+    marginVertical: 5,
+    width: "100%",
+  },
+  modalHeaderTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    shadowColor: "#000",
+    marginStart: 10,
+  },
+  modalButton: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+    padding: 10,
+    borderRadius: 10,
+  },
+  saveButton: {
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+  },
+  subtaskContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    justifyContent: "flex-start",
+    backgroundColor: "white",
+    padding: 10,
   },
 });
