@@ -134,7 +134,13 @@ export default function EditTaskScreen() {
     if (newStatus) {
       subtasks.forEach((subtask) => {
         const subtaskRef = ref(database, `subtasks/${subtask.id}`);
-        update(subtaskRef, { completed: newStatus });
+        update(subtaskRef, { completed: newStatus })
+          .then(() => {
+            router.back();
+          })
+          .catch(() => {
+            Alert.alert("Error", "Failed to update subtask status.");
+          });
       });
     }
   };
@@ -199,11 +205,10 @@ export default function EditTaskScreen() {
     subtaskId: string,
     currentStatus: boolean
   ) => {
-    console.log(currentStatus);
     const subtaskRef = ref(database, `subtasks/${subtaskId}`);
 
-    await update(subtaskRef, { completed: currentStatus }).then(() => {
-      fetchSubTasks();
+    await update(subtaskRef, { completed: currentStatus }).catch(() => {
+      Alert.alert("Error", "Failed to update subtask status.");
     });
   };
 
@@ -305,7 +310,7 @@ export default function EditTaskScreen() {
               </>
             ) : (
               <>
-                <View style={styles.rowButton}>
+                <View style={styles.rowButtonContainer}>
                   <Button
                     icon={() => (
                       <Ionicons
@@ -316,7 +321,7 @@ export default function EditTaskScreen() {
                     )}
                     mode="contained-tonal"
                     onPress={() => handleDatePicker()}
-                    style={styles.button}
+                    style={[styles.button, styles.rowButton, { width: "60%" }]}
                     rippleColor={"#6fb2fa"}
                     buttonColor="white"
                     contentStyle={styles.buttonContent}
@@ -335,7 +340,7 @@ export default function EditTaskScreen() {
                     )}
                     mode="contained-tonal"
                     onPress={() => handleTimePicker()}
-                    style={styles.button}
+                    style={[styles.button, styles.rowButton, { width: "35%" }]}
                     rippleColor={"#6fb2fa"}
                     buttonColor="white"
                     contentStyle={styles.buttonContent}
@@ -544,32 +549,11 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
     marginBottom: 15,
   },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 15,
-  },
-  rowButton: {
+  rowButtonContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 10,
-  },
-  subtaskRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-    gap: 10,
-  },
-  subtaskText: {
-    flex: 1,
-    fontSize: 14,
-  },
-  completedText: {
-    flex: 1,
-    fontSize: 14,
-    textDecorationLine: "line-through",
   },
   modalOverlay: {
     flex: 1,
@@ -656,5 +640,8 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     backgroundColor: "white",
     padding: 10,
+  },
+  rowButton: {
+    textOverflow: "ellipsis",
   },
 });

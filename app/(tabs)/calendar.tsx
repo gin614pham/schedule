@@ -1,5 +1,12 @@
 import React, { useRef, useCallback, useEffect, useState } from "react";
-import { Platform, StyleSheet, View, Text } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  View,
+  Text,
+  DefaultSectionT,
+  SectionListData,
+} from "react-native";
 import { AgendaList, CalendarProvider } from "react-native-calendars";
 
 import { themeColor } from "../../mocks/theme";
@@ -8,11 +15,15 @@ import { router } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { AgendaDataInterface, TaskInterface } from "@/interfaces/types";
+import { COLORS, FONT_SIZE } from "@/constants/theme";
 
 const ExpandableCalendarScreen = () => {
   const [user, setUser] = useState(auth.currentUser);
   const [taskList, setTaskList] = useState<TaskInterface[]>([]);
   const [agendaItems, setAgendaItems] = useState<AgendaDataInterface[]>([]);
+  const todayBtnTheme = useRef({
+    todayButtonTextColor: themeColor,
+  });
 
   useEffect(() => {
     console.log("Do Transform");
@@ -100,12 +111,7 @@ const ExpandableCalendarScreen = () => {
     }
   }, [taskList]);
 
-  // const todayBtnTheme = useRef({
-  //   todayButtonTextColor: themeColor,
-  // });
-
   const renderItem = useCallback(({ item }: any) => {
-    // return <AgendaItem item={item} />;
     return (
       <View style={styles.agendaItem}>
         <Text style={styles.agendaItemTitle}>{item.title}</Text>
@@ -114,36 +120,40 @@ const ExpandableCalendarScreen = () => {
     );
   }, []);
 
-  const todayBtnTheme = {
-    todayButtonTextColor: "#FFFFFF", // Màu chữ
-    todayButtonBackgroundColor: "#007BFF", // Màu nền
-    todayButtonBorderRadius: 10, // Độ bo góc
-    todayButtonFontSize: 16, // Cỡ chữ
-    todayButtonPaddingVertical: 8, // Padding dọc
-    todayButtonPaddingHorizontal: 20, // Padding ngang
-  };
-
   return (
-    <CalendarProvider
-      date={agendaItems[1]?.title || new Date().toISOString().split("T")[0]}
-      showTodayButton
-      theme={todayBtnTheme}
-    >
-      <AgendaList
-        sections={agendaItems}
-        renderItem={renderItem}
-        scrollToNextEvent
-        markToday
-        dayFormat="EEEE, MMM d"
-        sectionStyle={styles.section}
-      />
-    </CalendarProvider>
+    <View style={styles.container}>
+      <CalendarProvider
+        date={
+          new Date(agendaItems[0]?.title).toLocaleString(undefined, {
+            weekday: "short",
+            day: "numeric",
+            month: "numeric",
+            year: "numeric",
+          }) || new Date().toLocaleString()
+        }
+        showTodayButton
+        theme={todayBtnTheme.current}
+      >
+        <AgendaList
+          sections={agendaItems}
+          renderItem={renderItem}
+          scrollToNextEvent
+          markToday
+          sectionStyle={styles.section}
+        />
+      </CalendarProvider>
+    </View>
   );
 };
 
 export default ExpandableCalendarScreen;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    padding: 10,
+  },
   calendar: {
     paddingTop: 10,
     paddingLeft: 20,
@@ -166,24 +176,23 @@ const styles = StyleSheet.create({
     borderLeftColor: "#007BFF",
   },
   agendaItem: {
-    backgroundColor: "#ffffff",
-    marginVertical: 8,
+    marginHorizontal: 10,
+    backgroundColor: COLORS.background,
+    marginVertical: 4,
     padding: 15,
     borderRadius: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
     cursor: "pointer",
+    borderWidth: 1,
+    borderColor: COLORS.blue,
   },
   agendaItemTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
+    fontSize: FONT_SIZE.medium,
+    color: COLORS.blue,
+    fontWeight: "700",
   },
   agendaItemHour: {
-    fontSize: 14,
+    fontSize: FONT_SIZE.small,
     fontWeight: "400",
-    color: "#888",
+    color: COLORS.blue,
   },
 });

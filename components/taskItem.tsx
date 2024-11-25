@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CustomRadioButton from "./customRadioButton";
 import { Feather } from "@expo/vector-icons";
 import { TaskItemInterface } from "@/interfaces/types";
@@ -25,7 +25,18 @@ const TaskItem = ({
   handleTaskPress,
   handDeleteTask,
 }: Props) => {
-  const withScreen = Dimensions.get("window").width;
+  const [withScreen, setWithScreen] = useState(Dimensions.get("window").width);
+
+  useEffect(() => {
+    const updateScreenSize = Dimensions.addEventListener(
+      "change",
+      ({ window }) => {
+        setWithScreen(window.width);
+      }
+    );
+
+    return () => updateScreenSize.remove();
+  }, []);
   return (
     <>
       <CustomRadioButton
@@ -41,7 +52,7 @@ const TaskItem = ({
         </Text>
         {item.completed && (
           <>
-            <View style={[styles.taskSeparator, { width: withScreen - 175 }]} />
+            <View style={[styles.taskSeparator, { width: withScreen - 185 }]} />
             <TouchableOpacity
               style={styles.deleteButton}
               onPress={() => handDeleteTask(item.id)}

@@ -56,6 +56,8 @@ export default function Register() {
           placeholder="Email"
           autoCapitalize="none"
           autoComplete="off"
+          textContentType="emailAddress"
+          returnKeyType="next"
           value={email}
           onChangeText={(text) => setEmail(text)}
         />
@@ -65,6 +67,7 @@ export default function Register() {
           secureTextEntry={true}
           autoCapitalize="none"
           textContentType="password"
+          returnKeyType="next"
           autoComplete="off"
           value={password}
           onChangeText={(text) => setPassword(text)}
@@ -75,6 +78,7 @@ export default function Register() {
           secureTextEntry={true}
           autoCapitalize="none"
           textContentType="password"
+          returnKeyType="next"
           autoComplete="off"
           value={confirmPassword}
           onChangeText={(text) => setConfirmPassword(text)}

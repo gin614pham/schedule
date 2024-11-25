@@ -31,6 +31,7 @@ import TaskItem from "@/components/taskItem";
 import { TaskInterface, TaskItemInterface } from "@/interfaces/types";
 import { auth } from "@/Config/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
+import BottomBar from "@/components/bottomBar";
 
 export default function TaskScreen() {
   const listId = useSearchParams().get("listId");
@@ -210,9 +211,7 @@ export default function TaskScreen() {
       });
 
       console.log("Task added!");
-      console.log(user?.uid);
       setNewTaskName("");
-      fetchTasks();
     } catch (error) {
       console.error("Error adding task:", error);
       Alert.alert("Error", "Failed to add the task.");
@@ -232,20 +231,7 @@ export default function TaskScreen() {
           behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
           {!isInputFocused ? (
-            <View style={styles.addButtonContainer}>
-              <TouchableOpacity
-                style={styles.homeButton}
-                onPress={() => router.replace("/home")}
-              >
-                <AntDesign name="home" size={24} color="#2592ff" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={handleShowInput}
-              >
-                <Text style={styles.addButtonText}>I want to do...</Text>
-              </TouchableOpacity>
-            </View>
+            <BottomBar handleShowInput={handleShowInput} />
           ) : (
             <InputNewTask
               title={newTaskName}
@@ -304,13 +290,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 10,
   },
-  addButtonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-    gap: 10,
-  },
   taskText: {
     fontSize: 18,
     color: "#black",
@@ -325,11 +304,6 @@ const styles = StyleSheet.create({
     color: "#999",
     marginTop: 5,
   },
-  addButtonText: {
-    color: "gray",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
   input: {
     width: "100%",
     padding: 10,
@@ -342,25 +316,5 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0, 0, 0, 0.3)",
     zIndex: 1,
-  },
-  addButton: {
-    flex: 9,
-    backgroundColor: "white",
-    padding: 15,
-    paddingStart: 25,
-    borderRadius: 30,
-    alignItems: "flex-start",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  homeButton: {
-    flex: 2,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 20,
-    backgroundColor: "white",
   },
 });

@@ -36,6 +36,8 @@ type AgendaDataInterface = {
   data: AgendaEventInterface[];
 };
 
+type GroupedTasks = { [key: string]: TaskInterface[] };
+
 export {
   TaskItemInterface,
   ListNameInterface,
@@ -43,4 +45,5 @@ export {
   TaskInterface,
   AgendaEventInterface,
   AgendaDataInterface,
+  GroupedTasks,
 };

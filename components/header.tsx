@@ -1,9 +1,10 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
-import { Menu, PaperProvider } from "react-native-paper";
+import { Menu } from "react-native-paper";
 import { router } from "expo-router";
 import { auth } from "@/Config/firebaseConfig";
+import { COLORS } from "@/constants/theme";
 
 type Props = {
   title: string;
@@ -11,6 +12,18 @@ type Props = {
 
 const Header = (props: Props) => {
   const [visible, setVisible] = React.useState(false);
+  const [countPress, setCountPress] = React.useState(0);
+  const [colorIconPlanet, setColorIconPlanet] = React.useState(COLORS.shadow);
+  const [nameIcon, setNameIcon] = React.useState<"planet-outline" | "planet">(
+    "planet-outline"
+  );
+
+  useEffect(() => {
+    if (countPress >= 7) {
+      setColorIconPlanet("mediumaquamarine");
+      setNameIcon("planet");
+    }
+  }, [countPress]);
 
   const handSettings = () => {
     router.push("/settings");
@@ -20,9 +33,20 @@ const Header = (props: Props) => {
     router.replace("/");
   };
 
+  const handlePress = () => {
+    setCountPress(countPress + 1);
+  };
+
   return (
     <>
       <View style={styles.container}>
+        <TouchableOpacity
+          activeOpacity={1}
+          style={styles.button}
+          onPress={handlePress}
+        >
+          <Ionicons name={nameIcon} size={24} color={colorIconPlanet} />
+        </TouchableOpacity>
         <Text style={styles.text}>{props.title}</Text>
         <Menu
           visible={visible}

@@ -5,8 +5,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-  Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
@@ -26,8 +24,13 @@ import { router } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
 import { TaskInterface, TaskItemInterface } from "@/interfaces/types";
 import InputNewTask from "@/components/inputNewTask";
-import { AntDesign } from "@expo/vector-icons";
 import TaskItem from "@/components/taskItem";
+import BottomBar from "@/components/bottomBar";
+import {
+  handDeleteTask,
+  handleTaskPress,
+  toggleTaskCompletion,
+} from "@/controller/controller";
 
 const MyDay = () => {
   const [user, setUser] = useState(auth.currentUser);
@@ -80,7 +83,7 @@ const MyDay = () => {
           );
 
         setTaskList(taskList);
-        console.log("Task List:", taskList);
+        console.log("Fetch tasks is done");
       }
     });
   };
@@ -101,27 +104,6 @@ const MyDay = () => {
       />
     </View>
   );
-
-  const handleTaskPress = (taskId: string, listId: string) => {
-    router.push({
-      pathname: "/(task)/edit-task",
-      params: { taskId, listId },
-    });
-  };
-
-  const handDeleteTask = async (taskId: string) => {
-    const db = getDatabase();
-    const taskRef = ref(db, `tasks/${taskId}`);
-
-    await remove(taskRef)
-      .then(() => {
-        console.log("Task deleted!");
-        fetchTasks();
-      })
-      .catch((error) => {
-        console.error("Error deleting task: ", error);
-      });
-  };
 
   const handleShowInput = () => {
     setIsInputFocused(true);
@@ -164,26 +146,10 @@ const MyDay = () => {
       });
 
       console.log("Task added!");
-      console.log(user?.uid);
       setNewTaskName("");
-      fetchTasks();
     } catch (error) {
       console.error("Error adding task:", error);
       Alert.alert("Error", "Failed to add the task.");
-    }
-  };
-
-  const toggleTaskCompletion = async (taskId: string, newStatus: boolean) => {
-    const db = getDatabase();
-    const taskRef = ref(db, `tasks/${taskId}`);
-    const currentDate = new Date().toLocaleString(); // Get current date and time
-    try {
-      await update(taskRef, { completed: newStatus, lastUpdated: currentDate });
-      console.log("Task status updated!");
-      fetchTasks();
-    } catch (error) {
-      console.error("Error updating task:", error);
-      Alert.alert("Error", "Failed to update the task status.");
     }
   };
 
@@ -200,20 +166,7 @@ const MyDay = () => {
           behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
           {!isInputFocused ? (
-            <View style={styles.addButtonContainer}>
-              <TouchableOpacity
-                style={styles.homeButton}
-                onPress={() => router.replace("/home")}
-              >
-                <AntDesign name="home" size={24} color="#2592ff" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={handleShowInput}
-              >
-                <Text style={styles.addButtonText}>I want to do...</Text>
-              </TouchableOpacity>
-            </View>
+            <BottomBar handleShowInput={handleShowInput} />
           ) : (
             <InputNewTask
               title={newTaskName}
