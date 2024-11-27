@@ -139,7 +139,7 @@ const Next7Day = () => {
   return (
     <PaperProvider>
       <View style={styles.container}>
-        <Header title="All Tasks" />
+        <Header title="Next 7 Day" />
         <SectionList
           sections={Object.entries(groupedTasks).map(
             ([letter, tasks], index) => ({
