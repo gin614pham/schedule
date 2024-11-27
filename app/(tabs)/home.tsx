@@ -6,32 +6,43 @@ import {
   TextInput,
   FlatList,
   TouchableOpacity,
-  Modal,
   Alert,
   ScrollView,
   Dimensions,
   Platform,
 } from "react-native";
-import { getDatabase, ref, push, set, onValue } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  push,
+  set,
+  onValue,
+  update,
+} from "firebase/database";
 import { auth } from "@/Config/firebaseConfig";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { router } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { ListNameInterface } from "@/interfaces/types";
+import { ListNameInterface, RenderListProps } from "@/interfaces/types";
 import { COLORS, FONT_SIZE } from "@/constants/theme";
 import { onAuthStateChanged } from "firebase/auth";
+import ModalAddList from "@/components/modalNameList";
+import { doomShareList, doomNameShareList } from "@/tests/shareList";
 
 export default function Home() {
   const [myLists, setMyLists] = useState<ListNameInterface[]>([]);
-  const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalEditVisible, setModalEditVisible] = useState(false);
   const [newListName, setNewListName] = useState("");
+  const [listId, setListId] = useState("");
   const [user, setUser] = useState(auth.currentUser);
   const [numColumns, setNumColumns] = useState(2);
   const withScreen = Dimensions.get("window").width;
   const [withItemList, setWithItemList] = useState("48%") as any;
-  const [sharedLists, setSharedLists] = useState<ListNameInterface[]>([]);
+  const [sharedLists, setSharedLists] = useState<ListNameInterface[]>([
+    doomNameShareList,
+  ]);
 
   useEffect(() => {
     if (Platform.OS === "web") {
@@ -148,6 +159,21 @@ export default function Home() {
     }
   };
 
+  const updateListName = async (listId: string, newName: string) => {
+    const db = getDatabase();
+    const listRef = ref(db, `lists/${listId}`);
+
+    try {
+      await update(listRef, { name: newName });
+      console.log("List name updated!");
+      setModalEditVisible(false);
+      setNewListName("");
+    } catch (error) {
+      console.error("Error updating list name: ", error);
+      Alert.alert("Error", "Failed to update the list name.");
+    }
+  };
+
   const handleListPress = (listId: string) => {
     router.push({
       pathname: "/(task)/task",
@@ -155,11 +181,13 @@ export default function Home() {
     });
   };
 
-  const renderList = ({
-    item,
-  }: {
-    item: { id: string; name: string; isAddButton?: boolean };
-  }) => {
+  const handleListLongPress = (listId: string) => {
+    setNewListName(myLists.find((list) => list.id === listId)?.name || "");
+    setListId(listId);
+    setModalEditVisible(true);
+  };
+
+  const renderList = ({ item }: { item: RenderListProps }) => {
     if (item.isAddButton) {
       return (
         <TouchableOpacity
@@ -175,19 +203,35 @@ export default function Home() {
       <TouchableOpacity
         style={[styles.listContainer, { width: withItemList }]}
         onPress={() => handleListPress(item.id)}
+        onLongPress={() => handleListLongPress(item.id)}
       >
         <Text style={styles.listText}>{item.name}</Text>
       </TouchableOpacity>
     );
   };
 
-  if (loading) {
+  const renderShareSpace = ({ item }: { item: RenderListProps }) => {
+    if (item.isAddButton) {
+      return (
+        <TouchableOpacity
+          style={[styles.listContainer, { width: withItemList }]}
+          onPress={() => setModalVisible(true)}
+        >
+          <Ionicons name="add" size={24} color="#1985f8f9" />
+        </TouchableOpacity>
+      );
+    }
+
     return (
-      <View style={styles.container}>
-        <Text>Loading...</Text>
-      </View>
+      <TouchableOpacity
+        style={[styles.listContainer, { width: withItemList }]}
+        onPress={() => handleListPress(item.id)}
+        onLongPress={() => handleListLongPress(item.id)}
+      >
+        <Text style={styles.listText}>{item.name}</Text>
+      </TouchableOpacity>
     );
-  }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -255,52 +299,20 @@ export default function Home() {
           />
         </View>
 
-        {/* Modal for adding new list */}
-        <Modal
-          visible={modalVisible}
-          animationType="none"
-          onRequestClose={() => setModalVisible(false)}
-          transparent
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContainer}>
-              <TextInput
-                style={styles.modalInput}
-                placeholder="Enter List Name"
-                value={newListName}
-                onChangeText={setNewListName}
-                textAlignVertical="top"
-                multiline
-              />
-              <View style={styles.modalButtonsLayout}>
-                <TouchableOpacity
-                  style={styles.modalButton}
-                  onPress={() => setModalVisible(false)}
-                >
-                  <Text style={[[styles.modalButtonText, { color: "black" }]]}>
-                    Cancel
-                  </Text>
-                </TouchableOpacity>
-                <View style={styles.modalSeparator} />
-                <TouchableOpacity
-                  style={styles.modalButton}
-                  onPress={addNewList}
-                  disabled={!newListName}
-                >
-                  <Text
-                    style={
-                      !newListName
-                        ? styles.modalButtonTextDisabled
-                        : styles.modalButtonText
-                    }
-                  >
-                    Save
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
+        <ModalAddList
+          modalVisible={modalVisible}
+          setModalVisible={setModalVisible}
+          newListName={newListName}
+          setNewListName={setNewListName}
+          onSubmit={addNewList}
+        />
+        <ModalAddList
+          modalVisible={modalEditVisible}
+          setModalVisible={setModalEditVisible}
+          newListName={newListName}
+          setNewListName={setNewListName}
+          onSubmit={() => updateListName(listId || "", newListName)}
+        />
       </View>
     </ScrollView>
   );
@@ -398,65 +410,5 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZE.medium,
     fontWeight: "bold",
     color: COLORS.subtext,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: COLORS.overlay,
-    flexGrow: 1,
-  },
-  modalContainer: {
-    flexDirection: "column",
-    backgroundColor: COLORS.background,
-    borderRadius: 15,
-    alignItems: "center",
-    justifyContent: "center",
-    width: "80%",
-    height: "30%",
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  modalInput: {
-    width: "100%",
-    padding: 10,
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15,
-    backgroundColor: COLORS.subBackground,
-    flexGrow: 9,
-    borderWidth: 0,
-  },
-  modalButtonsLayout: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-    marginBottom: 0,
-    flexGrow: 1,
-    gap: 0,
-  },
-  modalButton: {
-    flex: 1,
-    padding: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  modalButtonText: {
-    fontSize: FONT_SIZE.medium,
-    fontWeight: "bold",
-    color: COLORS.blue,
-  },
-  modalButtonTextDisabled: {
-    fontSize: FONT_SIZE.medium,
-    fontWeight: "bold",
-    color: COLORS.disabled,
-  },
-  modalSeparator: {
-    height: "90%",
-    width: 1,
-    backgroundColor: COLORS.disabled,
-    alignSelf: "center",
   },
 });
