@@ -132,17 +132,15 @@ export default function EditTaskScreen() {
     setCompleted(newStatus);
 
     if (newStatus) {
+      const taskRef = ref(database, `tasks/${taskId}`);
+      update(taskRef, { completed: newStatus })
       subtasks.forEach((subtask) => {
         const subtaskRef = ref(database, `subtasks/${subtask.id}`);
         update(subtaskRef, { completed: newStatus })
-          .then(() => {
-            router.back();
-          })
-          .catch(() => {
-            Alert.alert("Error", "Failed to update subtask status.");
-          });
       });
     }
+
+    updateTaskInFirebase();
   };
 
   const updateTaskInFirebase = async () => {
@@ -285,7 +283,7 @@ export default function EditTaskScreen() {
               buttonColor="white"
               contentStyle={styles.buttonContent}
             >
-              Toggle Completed
+              {completed ? "Mark Incomplete" : "Mark Complete"}
             </Button>
 
             {Platform.OS === "web" ? (
