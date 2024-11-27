@@ -10,7 +10,7 @@ import {
 } from "@/interfaces/types";
 import { router } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
-import { getDatabase, ref, onValue, remove, update } from "firebase/database";
+import { getDatabase, ref, onValue } from "firebase/database";
 import TaskItem from "@/components/taskItem";
 import {
   toggleTaskCompletion,
