@@ -46,7 +46,10 @@ const ModalAddList = ({
           <View style={styles.modalButtonsLayout}>
             <TouchableOpacity
               style={styles.modalButton}
-              onPress={() => setModalVisible(false)}
+              onPress={() => {
+                setModalVisible(false);
+                setNewListName("");
+              }}
             >
               <Text style={[[styles.modalButtonText, { color: "black" }]]}>
                 Cancel

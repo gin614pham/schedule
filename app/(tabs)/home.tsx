@@ -28,6 +28,10 @@ import { COLORS, FONT_SIZE } from "@/constants/theme";
 import { onAuthStateChanged } from "firebase/auth";
 import ModalAddList from "@/components/modalNameList";
 import { doomShareList, doomNameShareList } from "@/tests/shareList";
+import {
+  handleSendNotification,
+  requestNotificationPermission,
+} from "@/utils/notification";
 
 export default function Home() {
   const [myLists, setMyLists] = useState<ListNameInterface[]>([]);
@@ -43,6 +47,10 @@ export default function Home() {
   const [sharedLists, setSharedLists] = useState<ListNameInterface[]>([
     doomNameShareList,
   ]);
+
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
 
   useEffect(() => {
     if (Platform.OS === "web") {
@@ -258,7 +266,10 @@ export default function Home() {
           <Text style={styles.bannerText}>
             Easily collaborate with your family or team
           </Text>
-          <TouchableOpacity style={styles.bannerButton}>
+          <TouchableOpacity
+            style={styles.bannerButton}
+            onPress={() => handleSendNotification("collaboration", "goes here")}
+          >
             <Text style={styles.bannerButtonText}>Learn more</Text>
           </TouchableOpacity>
         </View>
@@ -289,7 +300,7 @@ export default function Home() {
               ...sharedLists.filter((list) => list.name),
               { id: "add", name: "Add", isAddButton: true },
             ]}
-            renderItem={renderList}
+            renderItem={renderShareSpace}
             keyExtractor={(item) => item.id || "add"}
             numColumns={numColumns}
             key={numColumns}
