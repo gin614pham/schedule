@@ -27,7 +27,6 @@ import { ListNameInterface, RenderListProps } from "@/interfaces/types";
 import { COLORS, FONT_SIZE } from "@/constants/theme";
 import { onAuthStateChanged } from "firebase/auth";
 import ModalAddList from "@/components/modalNameList";
-import { doomNameShareList } from "@/tests/shareList";
 import {
   handleSendNotification,
   requestNotificationPermission,
@@ -48,9 +47,7 @@ export default function Home() {
   const [numColumns, setNumColumns] = useState(2);
   const withScreen = Dimensions.get("window").width;
   const [withItemList, setWithItemList] = useState("48%") as any;
-  const [sharedLists, setSharedLists] = useState<ListNameInterface[]>([
-    doomNameShareList,
-  ]);
+  const [sharedLists, setSharedLists] = useState<ListNameInterface[]>([]);
 
   useEffect(() => {
     if (Platform.OS === "web") {
@@ -224,6 +221,13 @@ export default function Home() {
     setModalEditVisible(true);
   };
 
+  const handleShareSpacePress = (listId: string) => {
+    router.push({
+      pathname: "/(shareSpace)/list",
+      params: { shareSpaceId: listId }, // Passing query parameters
+    });
+  };
+
   const renderList = ({ item }: { item: RenderListProps }) => {
     if (item.isAddButton) {
       return (
@@ -262,7 +266,7 @@ export default function Home() {
     return (
       <TouchableOpacity
         style={[styles.listContainer, { width: withItemList }]}
-        onPress={() => handleListPress(item.id)}
+        onPress={() => handleShareSpacePress(item.id)}
       >
         <Text style={styles.listText}>{item.name}</Text>
       </TouchableOpacity>
@@ -357,7 +361,6 @@ export default function Home() {
           setModalVisible={setModalShareVisible}
           newListName={newListName}
           setNewListName={setNewListName}
-          // onSubmit={addNewShareSpace}
           userID={user?.uid || ""}
         />
       </View>

@@ -14,8 +14,6 @@ import {
 import { useEffect, useState } from "react";
 import {
   FlatList,
-  Text,
-  TouchableOpacity,
   View,
   StyleSheet,
   Alert,
@@ -24,7 +22,6 @@ import {
   KeyboardAvoidingView,
   Keyboard,
 } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
 import { PaperProvider } from "react-native-paper";
 import InputNewTask from "@/components/inputNewTask";
 import TaskItem from "@/components/taskItem";
