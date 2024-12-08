@@ -27,17 +27,21 @@ import { ListNameInterface, RenderListProps } from "@/interfaces/types";
 import { COLORS, FONT_SIZE } from "@/constants/theme";
 import { onAuthStateChanged } from "firebase/auth";
 import ModalAddList from "@/components/modalNameList";
-import { doomShareList, doomNameShareList } from "@/tests/shareList";
+import { doomNameShareList } from "@/tests/shareList";
 import {
   handleSendNotification,
   requestNotificationPermission,
 } from "@/utils/notification";
+import { getNumberOfColumns, getWithItemList } from "@/utils/reponsive";
+import createShareCode from "@/utils/shareCode";
+import ModalShareSpace from "@/components/modalShareSpace";
 
 export default function Home() {
   const [myLists, setMyLists] = useState<ListNameInterface[]>([]);
   const [searchText, setSearchText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [modalEditVisible, setModalEditVisible] = useState(false);
+  const [modalShareVisible, setModalShareVisible] = useState(false);
   const [newListName, setNewListName] = useState("");
   const [listId, setListId] = useState("");
   const [user, setUser] = useState(auth.currentUser);
@@ -49,65 +53,11 @@ export default function Home() {
   ]);
 
   useEffect(() => {
-    requestNotificationPermission();
-  }, []);
-
-  useEffect(() => {
     if (Platform.OS === "web") {
       document.title = "Home";
     }
-  }, []);
+    requestNotificationPermission();
 
-  useEffect(() => {
-    const adjustColumns = () => {
-      setNumColumns(
-        withScreen < 700 ? 2 : withScreen < 1000 ? 3 : withScreen < 1300 ? 4 : 5
-      );
-    };
-
-    const adjustItemList = () => {
-      setWithItemList(
-        withScreen < 700
-          ? "48%"
-          : withScreen < 1000
-          ? "32%"
-          : withScreen < 1300
-          ? "24%"
-          : "18%"
-      );
-    };
-
-    adjustColumns();
-    adjustItemList();
-
-    const subscribe = Dimensions.addEventListener("change", ({ window }) => {
-      setNumColumns(
-        window.width < 700
-          ? 2
-          : window.width < 1000
-          ? 3
-          : window.width < 1300
-          ? 4
-          : 5
-      );
-
-      setWithItemList(
-        window.width < 700
-          ? "48%"
-          : window.width < 1000
-          ? "32%"
-          : window.width < 1300
-          ? "24%"
-          : "18%"
-      );
-    });
-
-    return () => {
-      subscribe.remove();
-    };
-  }, [withScreen]);
-
-  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
@@ -119,6 +69,29 @@ export default function Home() {
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const adjustColumns = () => {
+      setNumColumns(getNumberOfColumns(withScreen));
+    };
+
+    const adjustItemList = () => {
+      setWithItemList(getWithItemList(withScreen));
+    };
+
+    adjustColumns();
+    adjustItemList();
+
+    const subscribe = Dimensions.addEventListener("change", ({ window }) => {
+      setNumColumns(getNumberOfColumns(window.width));
+
+      setWithItemList(getWithItemList(window.width));
+    });
+
+    return () => {
+      subscribe.remove();
+    };
+  }, [withScreen]);
 
   // Fetch data from Realtime Database
   useEffect(() => {
@@ -137,8 +110,31 @@ export default function Home() {
       }
     });
 
+    // Fetch shared spaces
+    const sharedSpaceRef = ref(db, "shareSpaces");
+    const sharedSpaceUnsubscribe = onValue(sharedSpaceRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const lists = Object.keys(data)
+          .filter((key) => {
+            const shareSpace = data[key];
+            return (
+              shareSpace.userId === user?.uid ||
+              (shareSpace.members && shareSpace.members[user?.uid as string])
+            );
+          })
+          .map((key) => ({ id: key, name: data[key].name }));
+        setSharedLists(lists);
+      } else {
+        setSharedLists([]);
+      }
+    });
+
     // Cleanup listener when component unmounts or when the effect re-runs
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      sharedSpaceUnsubscribe();
+    };
   }, [user]);
 
   const addNewList = async () => {
@@ -160,6 +156,39 @@ export default function Home() {
 
       console.log("List added!");
       setModalVisible(false);
+      setNewListName("");
+    } catch (error) {
+      console.error("Error adding list: ", error);
+      Alert.alert("Error", "Failed to add the list.");
+    }
+  };
+
+  const addNewShareSpace = async () => {
+    if (!newListName.trim()) {
+      Alert.alert("Validation Error", "List name cannot be empty.");
+      return;
+    }
+
+    const db = getDatabase();
+    const listsRef = ref(db, "shareSpaces");
+    const newListRef = push(listsRef);
+    const shareCode = createShareCode();
+
+    try {
+      await set(newListRef, {
+        id: newListRef.key,
+        userId: user?.uid,
+        name: newListName,
+        members: {
+          [user?.uid as string]: {
+            role: "owner",
+          },
+        },
+        shareCode: shareCode,
+      });
+
+      console.log("List added!");
+      setModalShareVisible(false);
       setNewListName("");
     } catch (error) {
       console.error("Error adding list: ", error);
@@ -223,7 +252,7 @@ export default function Home() {
       return (
         <TouchableOpacity
           style={[styles.listContainer, { width: withItemList }]}
-          onPress={() => setModalVisible(true)}
+          onPress={() => setModalShareVisible(true)}
         >
           <Ionicons name="add" size={24} color="#1985f8f9" />
         </TouchableOpacity>
@@ -234,7 +263,6 @@ export default function Home() {
       <TouchableOpacity
         style={[styles.listContainer, { width: withItemList }]}
         onPress={() => handleListPress(item.id)}
-        onLongPress={() => handleListLongPress(item.id)}
       >
         <Text style={styles.listText}>{item.name}</Text>
       </TouchableOpacity>
@@ -323,6 +351,14 @@ export default function Home() {
           newListName={newListName}
           setNewListName={setNewListName}
           onSubmit={() => updateListName(listId || "", newListName)}
+        />
+        <ModalShareSpace
+          modalVisible={modalShareVisible}
+          setModalVisible={setModalShareVisible}
+          newListName={newListName}
+          setNewListName={setNewListName}
+          // onSubmit={addNewShareSpace}
+          userID={user?.uid || ""}
         />
       </View>
     </ScrollView>
