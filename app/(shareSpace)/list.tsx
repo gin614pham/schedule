@@ -17,14 +17,18 @@ import ShareSpaceHeader from "@/components/shareSpaceHeader";
 import BottomBar from "@/components/bottomBar";
 import InputNewTask from "@/components/inputNewTask";
 import Role from "@/constants/role";
+import ModalListUser from "@/components/modalListUser";
+import * as Clipboard from "expo-clipboard";
 
 const ListShareSpaceScreen = () => {
   const shareSpaceId = useSearchParams().get("shareSpaceId");
   const [user, setUser] = useState(auth.currentUser);
   const [role, setRole] = useState(null);
   const [spaceName, setSpaceName] = useState(null);
+  const [shareCode, setShareCode] = useState("");
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [newTaskName, setNewTaskName] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
     if (Platform.OS === "web") {
@@ -80,6 +84,7 @@ const ListShareSpaceScreen = () => {
       const data = snapshot.val();
       if (data) {
         setSpaceName(data.name);
+        setShareCode(data.shareCode);
       }
     });
   };
@@ -89,10 +94,17 @@ const ListShareSpaceScreen = () => {
     setIsInputFocused(false);
   };
 
+  const copyCodeInvite = async () => {
+    await Clipboard.setStringAsync(shareCode);
+  };
+
   return (
     <PaperProvider>
       <View style={styles.container}>
-        <ShareSpaceHeader title={spaceName || ""} />
+        <ShareSpaceHeader
+          title={spaceName || ""}
+          setModalVisible={setIsModalVisible}
+        />
         {/* <Header title={listName} />
         <FlatList
           data={tasks}
@@ -131,6 +143,12 @@ const ListShareSpaceScreen = () => {
             />
           )}
         </KeyboardAvoidingView>
+        <ModalListUser
+          modalVisible={isModalVisible}
+          setModalVisible={setIsModalVisible}
+          shareSpaceName={spaceName || ""}
+          copyCode={copyCodeInvite}
+        />
       </View>
     </PaperProvider>
   );

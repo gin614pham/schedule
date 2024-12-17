@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useEffect } from "react";
+import React, { Dispatch, SetStateAction, useEffect } from "react";
 import { auth } from "@/Config/firebaseConfig";
 import { COLORS } from "@/constants/theme";
 import { router } from "expo-router";
@@ -8,6 +8,7 @@ import { Menu } from "react-native-paper";
 
 type Props = {
   title: string;
+  setModalVisible: Dispatch<SetStateAction<boolean>>;
 };
 
 const ShareSpaceHeader = (props: Props) => {
@@ -63,6 +64,14 @@ const ShareSpaceHeader = (props: Props) => {
             </TouchableOpacity>
           }
         >
+          <Menu.Item
+            onPress={() => {
+              setVisible(false);
+              props.setModalVisible(true);
+            }}
+            title="Share Space"
+            leadingIcon={() => <AntDesign name="addusergroup" size={20} />}
+          />
           <Menu.Item
             onPress={handSettings}
             title="Settings"
