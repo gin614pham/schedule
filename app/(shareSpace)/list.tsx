@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "expo-router/build/hooks";
-import { PaperProvider } from "react-native-paper";
+import { PaperProvider, SegmentedButtons } from "react-native-paper";
 import { auth } from "@/Config/firebaseConfig";
 import { router } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
@@ -20,6 +20,8 @@ import Role from "@/constants/role";
 import ModalListUser from "@/components/modalListUser";
 import * as Clipboard from "expo-clipboard";
 import { MemberInterface } from "@/interfaces/types";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { COLORS } from "@/constants/theme";
 
 const ListShareSpaceScreen = () => {
   const shareSpaceId = useSearchParams().get("shareSpaceId");
@@ -31,6 +33,7 @@ const ListShareSpaceScreen = () => {
   const [newTaskName, setNewTaskName] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [members, setMembers] = useState<MemberInterface[]>([]);
+  const [filled, setFilled] = useState("All");
 
   useEffect(() => {
     if (Platform.OS === "web") {
@@ -145,32 +148,53 @@ const ListShareSpaceScreen = () => {
           title={spaceName || ""}
           setModalVisible={setIsModalVisible}
         />
-        {/* <Header title={listName} />
-        <FlatList
-          data={tasks}
-          renderItem={renderTask}
-          keyExtractor={(item) => item.id}
+
+        <SegmentedButtons
+          value={filled}
+          onValueChange={setFilled}
+          buttons={[
+            {
+              label: "All Tasks",
+              value: "All",
+              icon: () => (
+                <MaterialCommunityIcons
+                  name="format-list-bulleted-type"
+                  size={24}
+                  color="black"
+                />
+              ),
+            },
+            {
+              label: "Your Tasks",
+              value: "Your",
+              icon: () => (
+                <MaterialCommunityIcons
+                  name="account-details"
+                  size={24}
+                  color="black"
+                />
+              ),
+            },
+          ]}
+          theme={{
+            colors: {
+              secondaryContainer: "#a6d0fd",
+              outline: "#a6d0fd",
+            },
+          }}
         />
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-          {!isInputFocused ? (
-            <BottomBar handleShowInput={handleShowInput} />
-          ) : (
-            <InputNewTask
-              title={newTaskName}
-              onChangeText={setNewTaskName}
-              onSubmit={addNewTask}
-              handleHideInput={handleHideInput}
-            />
-          )}
-        </KeyboardAvoidingView> */}
 
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-          {!isInputFocused ? (
-            <BottomBar handleShowInput={() => setIsInputFocused(true)} />
+          {!isInputFocused || role === Role.viewer ? (
+            <BottomBar
+              handleShowInput={() =>
+                role !== Role.viewer
+                  ? setIsInputFocused(true)
+                  : setIsInputFocused(false)
+              }
+            />
           ) : (
             <InputNewTask
               title={newTaskName}
