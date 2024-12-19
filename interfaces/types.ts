@@ -36,6 +36,12 @@ type AgendaDataInterface = {
   data: AgendaEventInterface[];
 };
 
+type MemberInterface = {
+  id: string;
+  email: string;
+  role: string;
+};
+
 type GroupedTasks = { [key: string]: TaskInterface[] };
 
 type RenderListProps = {
@@ -75,4 +81,5 @@ export {
   RenderListProps,
   dayStyles,
   dayColorStyle,
+  MemberInterface,
 };

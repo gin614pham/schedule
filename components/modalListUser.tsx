@@ -1,13 +1,27 @@
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { Dispatch, SetStateAction } from "react";
+import {
+  FlatList,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import { COLORS } from "@/constants/theme";
 import { AntDesign } from "@expo/vector-icons";
 import Toast from "react-native-toast-message";
+import { MemberInterface } from "@/interfaces/types";
+import { Picker } from "@react-native-picker/picker";
+import { getDatabase, ref, update } from "firebase/database";
+import Role from "@/constants/role";
 
 type Props = {
   modalVisible: boolean;
   setModalVisible: Dispatch<SetStateAction<boolean>>;
   shareSpaceName: string;
+  shareSpaceID: string;
+  members: MemberInterface[];
+  currentRole: string;
   copyCode: () => void;
 };
 
@@ -15,8 +29,20 @@ const ModalListUser = ({
   modalVisible,
   setModalVisible,
   shareSpaceName,
+  shareSpaceID,
+  members,
   copyCode,
+  currentRole,
 }: Props) => {
+  const updateMemberRole = async (memberId: string, newRole: string) => {
+    const db = getDatabase();
+    const memberRef = ref(
+      db,
+      `shareSpaces/${shareSpaceID}/members/${memberId}`
+    );
+    await update(memberRef, { role: newRole });
+  };
+
   const showToast = () => {
     Toast.show({
       type: "success",
@@ -24,6 +50,36 @@ const ModalListUser = ({
       position: "bottom",
       visibilityTime: 2000,
     });
+  };
+
+  const renderItem = ({ item }: { item: MemberInterface }) => {
+    const handleRoleChange = async (role: string) => {
+      await updateMemberRole(item.id, role);
+    };
+
+    return (
+      <View style={styles.itemContainer}>
+        <Text style={styles.email}>{item.email}</Text>
+
+        <Picker
+          selectedValue={item.role}
+          onValueChange={(role) => handleRoleChange(role)}
+          style={styles.picker}
+          itemStyle={styles.textPicker}
+          enabled={
+            currentRole === Role.owner && item.role !== Role.owner
+              ? true
+              : currentRole === Role.editor && item.role !== Role.owner
+          }
+        >
+          <Picker.Item label="Viewer" value={Role.viewer} />
+          <Picker.Item label="Editor" value={Role.editor} />
+          {item.role === Role.owner && (
+            <Picker.Item label="Owner" value={Role.owner} />
+          )}
+        </Picker>
+      </View>
+    );
   };
 
   return (
@@ -41,6 +97,12 @@ const ModalListUser = ({
           </View>
           <View style={styles.modalBody}>
             <Text style={styles.textBody}>People with access</Text>
+            <FlatList
+              style={styles.flatList}
+              data={members}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+            />
           </View>
 
           <View style={styles.modalFooter}>
@@ -85,7 +147,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
-    width: "80%",
+    width: "90%",
     maxWidth: 700,
     minHeight: "10%",
     maxHeight: "80%",
@@ -168,5 +230,38 @@ const styles = StyleSheet.create({
     color: "black",
     padding: 10,
     width: "100%",
+  },
+  flatList: {
+    width: "100%",
+    flexGrow: 1,
+    gap: 0,
+    maxHeight: 200,
+  },
+  itemContainer: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    justifyContent: "flex-start",
+    backgroundColor: "white",
+    padding: 5,
+    margin: 2,
+  },
+  email: {
+    flex: 3,
+    fontSize: 14,
+  },
+  picker: {
+    flex: 2,
+    borderWidth: 0,
+  },
+  textPicker: {
+    fontSize: 10,
+    color: "#666",
+  },
+  role: {
+    fontSize: 16,
+    color: "#666",
+    textTransform: "capitalize",
   },
 });

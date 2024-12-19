@@ -12,23 +12,25 @@ import { PaperProvider } from "react-native-paper";
 import { auth } from "@/Config/firebaseConfig";
 import { router } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
-import { getDatabase, ref, onValue } from "firebase/database";
+import { getDatabase, ref, onValue, get } from "firebase/database";
 import ShareSpaceHeader from "@/components/shareSpaceHeader";
 import BottomBar from "@/components/bottomBar";
 import InputNewTask from "@/components/inputNewTask";
 import Role from "@/constants/role";
 import ModalListUser from "@/components/modalListUser";
 import * as Clipboard from "expo-clipboard";
+import { MemberInterface } from "@/interfaces/types";
 
 const ListShareSpaceScreen = () => {
   const shareSpaceId = useSearchParams().get("shareSpaceId");
   const [user, setUser] = useState(auth.currentUser);
-  const [role, setRole] = useState(null);
+  const [role, setRole] = useState("");
   const [spaceName, setSpaceName] = useState(null);
   const [shareCode, setShareCode] = useState("");
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [newTaskName, setNewTaskName] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [members, setMembers] = useState<MemberInterface[]>([]);
 
   useEffect(() => {
     if (Platform.OS === "web") {
@@ -50,6 +52,7 @@ const ListShareSpaceScreen = () => {
   useEffect(() => {
     if (user) {
       fetchRole();
+      fetchMembers();
     }
   }, [user]);
 
@@ -59,7 +62,7 @@ const ListShareSpaceScreen = () => {
     }
   }, [shareSpaceId]);
 
-  const fetchRole = () => {
+  const fetchRole = async () => {
     if (user) {
       const db = getDatabase();
       const listRef = ref(
@@ -67,7 +70,7 @@ const ListShareSpaceScreen = () => {
         `shareSpaces/${shareSpaceId}/members/${user.uid}`
       );
 
-      onValue(listRef, (snapshot) => {
+      await onValue(listRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
           setRole(data.role);
@@ -87,6 +90,43 @@ const ListShareSpaceScreen = () => {
         setShareCode(data.shareCode);
       }
     });
+  };
+
+  const fetchMembers = async () => {
+    const db = getDatabase();
+    const reference = ref(db, `shareSpaces/${shareSpaceId}/members`);
+
+    await onValue(reference, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const memberPromise = Object.keys(data).map(async (key) => {
+          const email = await fetchMembersEmail(key);
+          return {
+            id: key,
+            email: email,
+            role: data[key].role,
+          };
+        });
+
+        Promise.all(memberPromise).then((members) => {
+          console.log(members);
+          setMembers(members);
+        });
+      }
+    });
+  };
+
+  const fetchMembersEmail = async (id: string): Promise<string> => {
+    try {
+      const db = getDatabase();
+      const reference = ref(db, `users/${id}`);
+      const snapshot = await get(reference);
+      const userData = snapshot.val();
+      return userData.email || "";
+    } catch (error) {
+      console.error("Error fetching user email:", error);
+      return "";
+    }
   };
 
   const addNewTask = () => {
@@ -144,9 +184,12 @@ const ListShareSpaceScreen = () => {
           )}
         </KeyboardAvoidingView>
         <ModalListUser
+          currentRole={role}
+          members={members}
           modalVisible={isModalVisible}
           setModalVisible={setIsModalVisible}
           shareSpaceName={spaceName || ""}
+          shareSpaceID={shareSpaceId || ""}
           copyCode={copyCodeInvite}
         />
       </View>
