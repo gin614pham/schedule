@@ -124,7 +124,7 @@ const doomShareList = {
 
 const doomNameShareList = {
   id: "aD0s7Nr",
-  name: "Work List",
+  name: "Đồ Án",
 };
 
 export { doomShareList, doomNameShareList };

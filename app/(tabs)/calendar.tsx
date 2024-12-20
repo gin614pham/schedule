@@ -122,26 +122,32 @@ const ExpandableCalendarScreen = () => {
 
   return (
     <View style={styles.container}>
-      <CalendarProvider
-        date={
-          new Date(agendaItems[0]?.title).toLocaleString(undefined, {
-            weekday: "short",
-            day: "numeric",
-            month: "numeric",
-            year: "numeric",
-          }) || new Date().toLocaleString()
-        }
-        showTodayButton
-        theme={todayBtnTheme.current}
-      >
-        <AgendaList
-          sections={agendaItems}
-          renderItem={renderItem}
-          scrollToNextEvent
-          markToday
-          sectionStyle={styles.section}
-        />
-      </CalendarProvider>
+      {agendaItems.length > 0 ? (
+        <CalendarProvider
+          date={
+            new Date(agendaItems[0]?.title).toLocaleString(undefined, {
+              weekday: "short",
+              day: "numeric",
+              month: "numeric",
+              year: "numeric",
+            }) || new Date().toLocaleString()
+          }
+          showTodayButton
+          theme={todayBtnTheme.current}
+        >
+          <AgendaList
+            sections={agendaItems}
+            renderItem={renderItem}
+            scrollToNextEvent
+            markToday
+            sectionStyle={styles.section}
+          />
+        </CalendarProvider>
+      ) : (
+        <View>
+          <Text>No tasks for calendar</Text>
+        </View>
+      )}
     </View>
   );
 };

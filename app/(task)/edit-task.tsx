@@ -322,7 +322,7 @@ export default function EditTaskScreen() {
                     style={[styles.button, styles.rowButton, { width: "60%" }]}
                     rippleColor={"#6fb2fa"}
                     buttonColor="white"
-                    contentStyle={styles.buttonContent}
+                    contentStyle={styles.buttonContentRow}
                   >
                     Start At{" "}
                     {date.toLocaleDateString(undefined, {
@@ -341,7 +341,7 @@ export default function EditTaskScreen() {
                     style={[styles.button, styles.rowButton, { width: "35%" }]}
                     rippleColor={"#6fb2fa"}
                     buttonColor="white"
-                    contentStyle={styles.buttonContent}
+                    contentStyle={styles.buttonContentRow}
                   >
                     Time {time}
                   </Button>
@@ -516,6 +516,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
   },
+  buttonContentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   label: {
     fontSize: 16,
     fontWeight: "bold",
@@ -641,5 +646,6 @@ const styles = StyleSheet.create({
   },
   rowButton: {
     textOverflow: "ellipsis",
+    overflow: "hidden",
   },
 });

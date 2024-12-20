@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { getDatabase, ref, remove, update } from "firebase/database";
+import { getDatabase, onValue, ref, remove, update } from "firebase/database";
 import { Alert } from "react-native";
 
 const handleTaskPress = (taskId: string, listId: string) => {
@@ -16,7 +16,6 @@ const handDeleteTask = async (taskId: string) => {
   await remove(taskRef)
     .then(() => {
       console.log("Task deleted!");
-      // fetchTasks();
     })
     .catch((error) => {
       console.error("Error deleting task: ", error);

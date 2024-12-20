@@ -14,6 +14,7 @@ import { router } from "expo-router";
 
 import { auth } from "../../Config/firebaseConfig";
 import { COLORS, FONT_SIZE } from "@/constants/theme";
+import { getDatabase, ref, set } from "firebase/database";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -35,13 +36,21 @@ export default function Register() {
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          router.replace("/(tabs)/home");
-        })
-        .catch((error) => {
-          Alert.alert("Error", error.message);
-        });
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      const db = getDatabase();
+      const usersRef = ref(db, `users/${user.uid}`);
+      await set(usersRef, {
+        id: user.uid,
+        email: user.email,
+      });
+
+      router.replace("/(tabs)/home");
     } catch (error) {
       console.error(error);
     }
