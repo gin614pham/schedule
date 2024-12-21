@@ -1,4 +1,6 @@
 import {
+  Alert,
+  FlatList,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -12,16 +14,18 @@ import { PaperProvider, SegmentedButtons } from "react-native-paper";
 import { auth } from "@/Config/firebaseConfig";
 import { router } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
-import { getDatabase, ref, onValue, get } from "firebase/database";
+import { getDatabase, ref, onValue, get, push, set } from "firebase/database";
 import ShareSpaceHeader from "@/components/shareSpaceHeader";
 import BottomBar from "@/components/bottomBar";
 import InputNewTask from "@/components/inputNewTask";
 import Role from "@/constants/role";
 import ModalListUser from "@/components/modalListUser";
 import * as Clipboard from "expo-clipboard";
-import { MemberInterface } from "@/interfaces/types";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MemberInterface, TaskInterface } from "@/interfaces/types";
+import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/theme";
+import getDateAndTime from "@/utils/getDate";
+import TasksShareItem from "@/components/tasksShareItem";
 
 const ListShareSpaceScreen = () => {
   const shareSpaceId = useSearchParams().get("shareSpaceId");
@@ -34,6 +38,7 @@ const ListShareSpaceScreen = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [members, setMembers] = useState<MemberInterface[]>([]);
   const [filled, setFilled] = useState("All");
+  const [tasks, setTasks] = useState<TaskInterface[]>([]);
 
   useEffect(() => {
     if (Platform.OS === "web") {
@@ -62,6 +67,7 @@ const ListShareSpaceScreen = () => {
   useEffect(() => {
     if (shareSpaceId) {
       fetchShareSpace();
+      fetchTasks();
     }
   }, [shareSpaceId]);
 
@@ -132,13 +138,101 @@ const ListShareSpaceScreen = () => {
     }
   };
 
-  const addNewTask = () => {
+  const fetchTasks = async () => {
+    if (!shareSpaceId) {
+      console.error("List ID is not defined.");
+      return;
+    }
+
+    const db = getDatabase();
+    const reference = ref(db, `tasks`);
+
+    try {
+      await onValue(reference, async (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const taskList = Object.keys(data)
+            .map((key) => ({
+              id: key,
+              ...data[key],
+            }))
+            .filter((task) => task.listId === shareSpaceId);
+
+          setTasks(taskList);
+        } else {
+          setTasks([]);
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
+  };
+
+  const filterTasks = (): TaskInterface[] => {
+    if (filled === "All") {
+      return tasks;
+    } else {
+      return tasks.filter((task) => task.userId === user?.uid);
+    }
+  };
+
+  const getMailById = (id: string) => {
+    const member = members.find((member) => member.id === id);
+    return member?.email || "Unknown";
+  };
+
+  const addNewTask = async () => {
     Keyboard.dismiss();
     setIsInputFocused(false);
+
+    if (!newTaskName.trim()) {
+      Alert.alert("Validation Error", "Task name cannot be empty.");
+      return;
+    }
+
+    const db = getDatabase();
+    const tasksRef = ref(db, `tasks`);
+    const newTaskRef = push(tasksRef);
+
+    const { onlyDate, onlyTime, currentDate } = getDateAndTime();
+
+    try {
+      await set(newTaskRef, {
+        id: newTaskRef.key,
+        listId: shareSpaceId,
+        name: newTaskName,
+        completed: false,
+        date: onlyDate,
+        time: onlyTime,
+        lastUpdated: currentDate,
+        deadline: currentDate,
+        notes: "",
+        userId: user?.uid,
+      });
+
+      setNewTaskName("");
+    } catch (error) {
+      console.error("Error adding task:", error);
+    }
   };
 
   const copyCodeInvite = async () => {
     await Clipboard.setStringAsync(shareCode);
+  };
+
+  const renderTaskItem = ({ item }: { item: TaskInterface }) => (
+    <TasksShareItem item={item} />
+  );
+
+  const renderEmptyList = () => {
+    return (
+      <View style={styles.emptyListContainer}>
+        <Text style={styles.emptyListText}>No tasks found.</Text>
+        <Text style={styles.emptyListText}>
+          Please add a task to get started!
+        </Text>
+      </View>
+    );
   };
 
   return (
@@ -182,6 +276,14 @@ const ListShareSpaceScreen = () => {
               outline: "#a6d0fd",
             },
           }}
+        />
+
+        <FlatList
+          data={filterTasks()}
+          renderItem={renderTaskItem}
+          keyExtractor={(item: TaskInterface) => item.id}
+          style={styles.taskList}
+          ListEmptyComponent={renderEmptyList}
         />
 
         <KeyboardAvoidingView
@@ -228,5 +330,17 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     backgroundColor: "white",
+  },
+  taskList: {
+    marginVertical: 10,
+  },
+  emptyListContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyListText: {
+    fontSize: 16,
+    color: "gray",
   },
 });

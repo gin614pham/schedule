@@ -29,6 +29,7 @@ import { TaskInterface, TaskItemInterface } from "@/interfaces/types";
 import { auth } from "@/Config/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 import BottomBar from "@/components/bottomBar";
+import getDateAndTime from "@/utils/getDate";
 
 export default function TaskScreen() {
   const listId = useSearchParams().get("listId");
@@ -184,14 +185,8 @@ export default function TaskScreen() {
     const db = getDatabase();
     const tasksRef = ref(db, `tasks`);
     const newTaskRef = push(tasksRef);
-    const currentDate = new Date().toISOString();
 
-    const onlyDate = currentDate.split("T")[0];
-    const onlyTime = new Date().toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "numeric",
-      hour12: false,
-    });
+    const { onlyDate, onlyTime, currentDate } = getDateAndTime();
 
     try {
       await set(newTaskRef, {

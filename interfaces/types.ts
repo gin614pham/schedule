@@ -23,6 +23,7 @@ type TaskInterface = {
   date: string;
   lastUpdated: string;
   time: string;
+  userId: string;
 };
 
 type AgendaEventInterface = {
