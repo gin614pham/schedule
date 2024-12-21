@@ -22,10 +22,10 @@ import Role from "@/constants/role";
 import ModalListUser from "@/components/modalListUser";
 import * as Clipboard from "expo-clipboard";
 import { MemberInterface, TaskInterface } from "@/interfaces/types";
-import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
-import { COLORS } from "@/constants/theme";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import getDateAndTime from "@/utils/getDate";
 import TasksShareItem from "@/components/tasksShareItem";
+import { handDeleteTask } from "@/controller/controller";
 
 const ListShareSpaceScreen = () => {
   const shareSpaceId = useSearchParams().get("shareSpaceId");
@@ -158,6 +158,21 @@ const ListShareSpaceScreen = () => {
             }))
             .filter((task) => task.listId === shareSpaceId);
 
+          // sort task by completion status, then by date, then by time, then by name
+          taskList.sort((a, b) => {
+            if (a.completed !== b.completed) {
+              return a.completed - b.completed;
+            } else if (a.date !== b.date) {
+              return new Date(a.date).getTime() - new Date(b.date).getTime();
+            } else if (a.time !== b.time) {
+              const [hourA, minuteA] = a.time.split(":").map(Number);
+              const [hourB, minuteB] = b.time.split(":").map(Number);
+              return hourA * 60 + minuteA - (hourB * 60 + minuteB);
+            } else {
+              return a.name.localeCompare(b.name);
+            }
+          });
+
           setTasks(taskList);
         } else {
           setTasks([]);
@@ -220,8 +235,21 @@ const ListShareSpaceScreen = () => {
     await Clipboard.setStringAsync(shareCode);
   };
 
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      await handDeleteTask(taskId);
+    } catch (error) {
+      console.error("Error deleting task: ", error);
+    }
+  };
+
   const renderTaskItem = ({ item }: { item: TaskInterface }) => (
-    <TasksShareItem item={item} />
+    <TasksShareItem
+      item={item}
+      userName={getMailById(item.userId)}
+      onPress={() => handleTaskPress(item.id, shareSpaceId!)}
+      onDelete={() => handleDeleteTask(item.id)}
+    />
   );
 
   const renderEmptyList = () => {
@@ -233,6 +261,13 @@ const ListShareSpaceScreen = () => {
         </Text>
       </View>
     );
+  };
+
+  const handleTaskPress = (taskId: string, shareSpaceId: string) => {
+    router.push({
+      pathname: "/(shareSpace)/edit",
+      params: { taskId, shareSpaceId },
+    });
   };
 
   return (
@@ -310,6 +345,7 @@ const ListShareSpaceScreen = () => {
           )}
         </KeyboardAvoidingView>
         <ModalListUser
+          shareSpaceCode={shareCode}
           currentRole={role}
           members={members}
           modalVisible={isModalVisible}

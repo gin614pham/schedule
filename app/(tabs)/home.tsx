@@ -160,38 +160,38 @@ export default function Home() {
     }
   };
 
-  const addNewShareSpace = async () => {
-    if (!newListName.trim()) {
-      Alert.alert("Validation Error", "List name cannot be empty.");
-      return;
-    }
+  // const addNewShareSpace = async () => {
+  //   if (!newListName.trim()) {
+  //     Alert.alert("Validation Error", "List name cannot be empty.");
+  //     return;
+  //   }
 
-    const db = getDatabase();
-    const listsRef = ref(db, "shareSpaces");
-    const newListRef = push(listsRef);
-    const shareCode = createShareCode();
+  //   const db = getDatabase();
+  //   const listsRef = ref(db, "shareSpaces");
+  //   const newListRef = push(listsRef);
+  //   const shareCode = createShareCode();
 
-    try {
-      await set(newListRef, {
-        id: newListRef.key,
-        userId: user?.uid,
-        name: newListName,
-        members: {
-          [user?.uid as string]: {
-            role: "owner",
-          },
-        },
-        shareCode: shareCode,
-      });
+  //   try {
+  //     await set(newListRef, {
+  //       id: newListRef.key,
+  //       userId: user?.uid,
+  //       name: newListName,
+  //       members: {
+  //         [user?.uid as string]: {
+  //           role: "owner",
+  //         },
+  //       },
+  //       shareCode: shareCode,
+  //     });
 
-      console.log("List added!");
-      setModalShareVisible(false);
-      setNewListName("");
-    } catch (error) {
-      console.error("Error adding list: ", error);
-      Alert.alert("Error", "Failed to add the list.");
-    }
-  };
+  //     console.log("List added!");
+  //     setModalShareVisible(false);
+  //     setNewListName("");
+  //   } catch (error) {
+  //     console.error("Error adding list: ", error);
+  //     Alert.alert("Error", "Failed to add the list.");
+  //   }
+  // };
 
   const updateListName = async (listId: string, newName: string) => {
     const db = getDatabase();

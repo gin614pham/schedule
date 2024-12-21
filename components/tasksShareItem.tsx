@@ -1,12 +1,15 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { TaskInterface } from "@/interfaces/types";
-import { Card, Icon, IconButton } from "react-native-paper";
+import { Card, IconButton } from "react-native-paper";
 import { COLORS } from "@/constants/theme";
 import { Octicons } from "@expo/vector-icons";
 
 type Props = {
   item: TaskInterface;
+  userName: string;
+  onPress: () => void;
+  onDelete: () => void;
 };
 
 const TasksShareItem = (props: Props) => {
@@ -37,25 +40,25 @@ const TasksShareItem = (props: Props) => {
 
   const renderRight = () => {
     return (
-      props.item.completed && <IconButton icon="delete" onPress={() => {}} />
+      props.item.completed && (
+        <IconButton icon="delete" onPress={props.onDelete} />
+      )
     );
   };
 
   return (
-    // <TouchableOpacity style={styles.taskContent}>
     <Card
-      onPress={() => console.log("task", props.item)}
+      onPress={props.onPress}
       style={[styles.taskContent, props.item.completed && { opacity: 0.7 }]}
       mode="elevated"
     >
       <Card.Title
         title={props.item.name}
-        subtitle={props.item.id}
+        subtitle={`Assigned: ${props.userName}`}
         left={renderLeft}
         right={renderRight}
       />
     </Card>
-    // </TouchableOpacity>
   );
 };
 

@@ -23,6 +23,7 @@ type Props = {
   members: MemberInterface[];
   currentRole: string;
   copyCode: () => void;
+  shareSpaceCode: string;
 };
 
 const ModalListUser = ({
@@ -33,6 +34,7 @@ const ModalListUser = ({
   members,
   copyCode,
   currentRole,
+  shareSpaceCode,
 }: Props) => {
   const updateMemberRole = async (memberId: string, newRole: string) => {
     const db = getDatabase();
@@ -104,6 +106,10 @@ const ModalListUser = ({
               keyExtractor={(item) => item.id}
             />
           </View>
+
+          <Text style={styles.textBody}>
+            Invite people by code: {shareSpaceCode}
+          </Text>
 
           <View style={styles.modalFooter}>
             <TouchableOpacity
