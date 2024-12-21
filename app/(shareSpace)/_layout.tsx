@@ -6,7 +6,7 @@ export default function _layout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="list" />
-      {/* <Stack.Screen name="edit-task" /> */}
+      <Stack.Screen name="edit" />
     </Stack>
   );
 }

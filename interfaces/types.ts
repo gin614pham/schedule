@@ -23,6 +23,8 @@ type TaskInterface = {
   date: string;
   lastUpdated: string;
   time: string;
+  userId: string;
+  notes: string;
 };
 
 type AgendaEventInterface = {
@@ -48,6 +50,11 @@ type RenderListProps = {
   id: string;
   name: string;
   isAddButton?: boolean;
+};
+
+type DropDownItemInterface = {
+  label: string;
+  value: string;
 };
 
 const dayStyles = {
@@ -82,4 +89,5 @@ export {
   dayStyles,
   dayColorStyle,
   MemberInterface,
+  DropDownItemInterface,
 };

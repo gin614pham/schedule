@@ -29,12 +29,11 @@ import Header from "@/components/header";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import TaskItem from "@/components/taskItem";
-import { SubtaskInterface, TaskItemInterface } from "@/interfaces/types";
-
-type DropDownItem = {
-  label: string;
-  value: string;
-};
+import {
+  DropDownItemInterface,
+  SubtaskInterface,
+  TaskItemInterface,
+} from "@/interfaces/types";
 
 export default function EditTaskScreen() {
   const taskId = useSearchParams().get("taskId");
@@ -55,7 +54,7 @@ export default function EditTaskScreen() {
   const [subtasks, setSubtasks] = useState<SubtaskInterface[]>([]);
   const [newSubtaskName, setNewSubtaskName] = useState("");
   const [openModel, setOpenModel] = useState(false);
-  const [listOptions, setListOptions] = useState<DropDownItem[]>([]);
+  const [listOptions, setListOptions] = useState<DropDownItemInterface[]>([]);
 
   useEffect(() => {
     if (taskId) {

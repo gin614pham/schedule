@@ -12,6 +12,7 @@ const COLORS = {
   overlay: "rgba(0, 0, 0, 0.5)",
   subBackground: "#f5f5f5",
   disabled: "#b0b0b0",
+  checked: "#4CAF50",
 };
 
 const FONTS = {
