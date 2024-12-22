@@ -83,7 +83,7 @@ const Next7Day = () => {
     const reference = ref(db, `tasks`);
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
-    const next7Days = new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const next7Days = new Date(currentDate.getTime() + 6 * 24 * 60 * 60 * 1000);
     next7Days.setHours(23, 59, 59, 999);
 
     await onValue(reference, (snapshot) => {

@@ -18,6 +18,8 @@ import {
   set,
   onValue,
   update,
+  get,
+  remove,
 } from "firebase/database";
 import { auth } from "@/Config/firebaseConfig";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -40,6 +42,7 @@ export default function Home() {
   const [searchText, setSearchText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [modalEditVisible, setModalEditVisible] = useState(false);
+  const [modalEditShareVisible, setModalEditShareVisible] = useState(false);
   const [modalShareVisible, setModalShareVisible] = useState(false);
   const [newListName, setNewListName] = useState("");
   const [listId, setListId] = useState("");
@@ -160,39 +163,6 @@ export default function Home() {
     }
   };
 
-  // const addNewShareSpace = async () => {
-  //   if (!newListName.trim()) {
-  //     Alert.alert("Validation Error", "List name cannot be empty.");
-  //     return;
-  //   }
-
-  //   const db = getDatabase();
-  //   const listsRef = ref(db, "shareSpaces");
-  //   const newListRef = push(listsRef);
-  //   const shareCode = createShareCode();
-
-  //   try {
-  //     await set(newListRef, {
-  //       id: newListRef.key,
-  //       userId: user?.uid,
-  //       name: newListName,
-  //       members: {
-  //         [user?.uid as string]: {
-  //           role: "owner",
-  //         },
-  //       },
-  //       shareCode: shareCode,
-  //     });
-
-  //     console.log("List added!");
-  //     setModalShareVisible(false);
-  //     setNewListName("");
-  //   } catch (error) {
-  //     console.error("Error adding list: ", error);
-  //     Alert.alert("Error", "Failed to add the list.");
-  //   }
-  // };
-
   const updateListName = async (listId: string, newName: string) => {
     const db = getDatabase();
     const listRef = ref(db, `lists/${listId}`);
@@ -208,6 +178,92 @@ export default function Home() {
     }
   };
 
+  const updateShareName = async (listId: string, newName: string) => {
+    const db = getDatabase();
+    const listRef = ref(db, `shareSpaces/${listId}`);
+
+    try {
+      const memberRef = ref(db, `shareSpaces/${listId}/members/${user?.uid}`);
+      const memberSnapshot = await get(memberRef);
+      const memberData = memberSnapshot.val();
+
+      if (memberData.role !== "owner") {
+        setModalEditShareVisible(false);
+        setNewListName("");
+        Alert.alert("Error", "Only the owner can update the share space name");
+
+        throw new Error("Only the owner can update the share space name");
+      }
+
+      await update(listRef, { name: newName });
+      setModalEditShareVisible(false);
+      setNewListName("");
+    } catch (error) {
+      Alert.alert("Error", "Failed to update the list name.");
+    }
+  };
+
+  const deleteList = async (listId: string) => {
+    const db = getDatabase();
+    const listRef = ref(db, `lists/${listId}`);
+
+    try {
+      await remove(listRef);
+
+      const tasksRef = ref(db, `tasks/`);
+      const tasksSnapshot = await get(tasksRef);
+      const tasksData = tasksSnapshot.val() as { [key: string]: any };
+
+      const tasksToDelete = Object.keys(tasksData).filter(
+        (taskId) => tasksData[taskId].listId === listId
+      );
+
+      await Promise.all(
+        tasksToDelete.map((taskId) => remove(ref(db, `tasks/${taskId}`)))
+      );
+
+      setModalEditVisible(false);
+      setNewListName("");
+    } catch (error) {
+      console.error("Error deleting list: ", error);
+    }
+  };
+
+  const deleteShareSpace = async (listId: string) => {
+    const db = getDatabase();
+    const listRef = ref(db, `shareSpaces/${listId}`);
+
+    // check if user is the owner
+    const memberRef = ref(db, `shareSpaces/${listId}/members/${user?.uid}`);
+    const memberSnapshot = await get(memberRef);
+    const memberData = memberSnapshot.val();
+
+    if (memberData.role === "owner") {
+      try {
+        await remove(listRef);
+
+        const tasksRef = ref(db, `tasks/`);
+        const tasksSnapshot = await get(tasksRef);
+        const tasksData = tasksSnapshot.val() as { [key: string]: any };
+
+        const tasksToDelete = Object.keys(tasksData).filter(
+          (taskId) => tasksData[taskId].listId === listId
+        );
+
+        await Promise.all(
+          tasksToDelete.map((taskId) => remove(ref(db, `tasks/${taskId}`)))
+        );
+
+        setModalEditShareVisible(false);
+        setNewListName("");
+      } catch (error) {
+        console.error("Error deleting list: ", error);
+      }
+    } else {
+      Alert.alert("Error", "Only the owner can delete the share space");
+    }
+  };
+
   const handleListPress = (listId: string) => {
     router.push({
       pathname: "/(task)/task",
@@ -219,6 +275,28 @@ export default function Home() {
     setNewListName(myLists.find((list) => list.id === listId)?.name || "");
     setListId(listId);
     setModalEditVisible(true);
+  };
+
+  const handleShareSpaceLongPress = async (listId: string) => {
+    if (await checkIfOwner(listId)) {
+      setNewListName(
+        sharedLists.find((list) => list.id === listId)?.name || ""
+      );
+      setListId(listId);
+      setModalEditShareVisible(true);
+    }
+  };
+
+  const checkIfOwner = async (listId: string): Promise<boolean> => {
+    const db = getDatabase();
+    const memberRef = ref(db, `shareSpaces/${listId}/members/${user?.uid}`);
+    const memberSnapshot = await get(memberRef);
+
+    const memberData = memberSnapshot.val();
+    if (memberData.role === "owner") {
+      return true;
+    }
+    return false;
   };
 
   const handleShareSpacePress = (listId: string) => {
@@ -267,6 +345,7 @@ export default function Home() {
       <TouchableOpacity
         style={[styles.listContainer, { width: withItemList }]}
         onPress={() => handleShareSpacePress(item.id)}
+        onLongPress={() => handleShareSpaceLongPress(item.id)}
       >
         <Text style={styles.listText}>{item.name}</Text>
       </TouchableOpacity>
@@ -355,6 +434,17 @@ export default function Home() {
           newListName={newListName}
           setNewListName={setNewListName}
           onSubmit={() => updateListName(listId || "", newListName)}
+          haveDelete
+          onDelete={() => deleteList(listId || "")}
+        />
+        <ModalAddList
+          modalVisible={modalEditShareVisible}
+          setModalVisible={setModalEditShareVisible}
+          newListName={newListName}
+          setNewListName={setNewListName}
+          onSubmit={() => updateShareName(listId || "", newListName)}
+          haveDelete
+          onDelete={() => deleteShareSpace(listId || "")}
         />
         <ModalShareSpace
           modalVisible={modalShareVisible}

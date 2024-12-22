@@ -15,6 +15,8 @@ type Props = {
   newListName: string;
   setNewListName: React.Dispatch<React.SetStateAction<string>>;
   onSubmit: (listId?: string, listName?: string) => void;
+  haveDelete?: boolean;
+  onDelete?: () => void;
 };
 
 const ModalAddList = ({
@@ -23,6 +25,8 @@ const ModalAddList = ({
   newListName,
   setNewListName,
   onSubmit,
+  haveDelete,
+  onDelete,
 }: Props) => {
   return (
     <Modal
@@ -44,6 +48,14 @@ const ModalAddList = ({
             multiline
           />
           <View style={styles.modalButtonsLayout}>
+            {haveDelete && (
+              <TouchableOpacity style={styles.modalButton} onPress={onDelete}>
+                <Text style={[[styles.modalButtonText, { color: "red" }]]}>
+                  Delete
+                </Text>
+              </TouchableOpacity>
+            )}
+            <View style={styles.modalSeparator} />
             <TouchableOpacity
               style={styles.modalButton}
               onPress={() => {
