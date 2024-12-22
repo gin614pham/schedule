@@ -137,9 +137,8 @@ export default function EditTaskScreen() {
         const subtaskRef = ref(database, `subtasks/${subtask.id}`);
         update(subtaskRef, { completed: newStatus })
       });
+      router.back();
     }
-
-    updateTaskInFirebase();
   };
 
   const updateTaskInFirebase = async () => {
