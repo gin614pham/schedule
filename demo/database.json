@@ -1,0 +1,675 @@
+{
+  "lists": {
+    "-OCi-ThadcrL_fH-It9D": {
+      "id": "-OCi-ThadcrL_fH-It9D",
+      "name": "Work",
+      "userId": "3p0BZWdFkPbNw5lkindOEpxjf6M2"
+    },
+    "-ODUle-J6DK_klB7Rqin": {
+      "id": "-ODUle-J6DK_klB7Rqin",
+      "name": "Học",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-ODUlh9MnUzIVB2ZX66z": {
+      "id": "-ODUlh9MnUzIVB2ZX66z",
+      "name": "Work",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-ODUzySX7ZWIwjQEiR2K": {
+      "id": "-ODUzySX7ZWIwjQEiR2K",
+      "name": "Công việc cá nhân",
+      "userId": "rKWsNFqdU9QeUItmiGgZxrJyLtM2"
+    },
+    "-OEhfgDbxiCXxS6821CO": {
+      "id": "-OEhfgDbxiCXxS6821CO",
+      "name": "Công việc gia đình",
+      "userId": "rKWsNFqdU9QeUItmiGgZxrJyLtM2"
+    },
+    "-OEhkUp1z8xDGAyRVYU0": {
+      "id": "-OEhkUp1z8xDGAyRVYU0",
+      "name": "Linh Tinh",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEvJ1tbZoEUP24sB3nc": {
+      "id": "-OEvJ1tbZoEUP24sB3nc",
+      "name": "DAILY",
+      "userId": "3p0BZWdFkPbNw5lkindOEpxjf6M2"
+    }
+  },
+  "shareSpaces": {
+    "-OD_t6UtaWl5fq4tZC8l": {
+      "id": "-OD_t6UtaWl5fq4tZC8l",
+      "members": {
+        "3p0BZWdFkPbNw5lkindOEpxjf6M2": {
+          "role": "editor"
+        },
+        "5FJGLrMiBReUwMKw6gkoWTznwcw1": {
+          "role": "editor"
+        },
+        "RpgaSK9QirWobZux6jFLbMdNiHl1": {
+          "role": "editor"
+        },
+        "rKWsNFqdU9QeUItmiGgZxrJyLtM2": {
+          "role": "owner"
+        }
+      },
+      "name": "Dự Án TNCN",
+      "shareCode": "SQWT6ZWNSS",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEhdnveaojwy9_ya4mo": {
+      "id": "-OEhdnveaojwy9_ya4mo",
+      "members": {
+        "RpgaSK9QirWobZux6jFLbMdNiHl1": {
+          "role": "viewer"
+        },
+        "rKWsNFqdU9QeUItmiGgZxrJyLtM2": {
+          "role": "owner"
+        }
+      },
+      "name": "học tập nhóm",
+      "shareCode": "G7NZN7BX4A",
+      "userId": "rKWsNFqdU9QeUItmiGgZxrJyLtM2"
+    },
+    "-OEmGX8ZgZ6Bmk8O2OFo": {
+      "id": "-OEmGX8ZgZ6Bmk8O2OFo",
+      "members": {
+        "3p0BZWdFkPbNw5lkindOEpxjf6M2": {
+          "role": "owner"
+        }
+      },
+      "name": "Exviz\n",
+      "shareCode": "19OXWT69VH",
+      "userId": "3p0BZWdFkPbNw5lkindOEpxjf6M2"
+    }
+  },
+  "subtasks": {
+    "-OEdmQHIh1dAIJChVdp6": {
+      "completed": false,
+      "idsubtask": "-OEdmQHIh1dAIJChVdp6",
+      "idtask": "-OEc5WLN4RYq7hU1Lb23",
+      "name": "Hehe"
+    },
+    "-OEdnyTpNPHpaC_1Lc4t": {
+      "completed": true,
+      "idsubtask": "-OEdnyTpNPHpaC_1Lc4t",
+      "idtask": "-OEc57c0tFRNqn2_8VEJ",
+      "name": "aaaa"
+    },
+    "-OEdnz8-nUVrXVZ3BX3A": {
+      "completed": false,
+      "idsubtask": "-OEdnz8-nUVrXVZ3BX3A",
+      "idtask": "-OEc57c0tFRNqn2_8VEJ",
+      "name": "aaaaaaadsa"
+    },
+    "-OEhejiXjHgWedj3U-hx": {
+      "completed": false,
+      "idsubtask": "-OEhejiXjHgWedj3U-hx",
+      "idtask": "-OEcZ0rKn_5uJJgolL-C",
+      "name": "Ôn kanji"
+    },
+    "-OEhelOWlj_QT6Sb5Um3": {
+      "completed": false,
+      "idsubtask": "-OEhelOWlj_QT6Sb5Um3",
+      "idtask": "-OEcZ0rKn_5uJJgolL-C",
+      "name": "Luyện nghe bài N3"
+    },
+    "-OEhfLppLkgxvGR6ArCE": {
+      "completed": false,
+      "idsubtask": "-OEhfLppLkgxvGR6ArCE",
+      "idtask": "-OEhfDN4LfWws7eFFptC",
+      "name": "Hoàn thành chương 3"
+    },
+    "-OEhfVKLIlF1xdqFkUf2": {
+      "completed": false,
+      "idsubtask": "-OEhfVKLIlF1xdqFkUf2",
+      "idtask": "-OEhfQ5EjDiAKWT6abdO",
+      "name": "Lau sàn"
+    },
+    "-OEhfWeYZRYDiOJD-INk": {
+      "completed": false,
+      "idsubtask": "-OEhfWeYZRYDiOJD-INk",
+      "idtask": "-OEhfQ5EjDiAKWT6abdO",
+      "name": "Sắp xếp lại giá sách"
+    },
+    "-OEhfnxxRrGIS9KduRA9": {
+      "completed": false,
+      "idsubtask": "-OEhfnxxRrGIS9KduRA9",
+      "idtask": "-OEhfiKCbKIbEs_GTSMA",
+      "name": "Mua rau"
+    },
+    "-OEhfpAPA9iYAkP4EOuK": {
+      "completed": false,
+      "idsubtask": "-OEhfpAPA9iYAkP4EOuK",
+      "idtask": "-OEhfiKCbKIbEs_GTSMA",
+      "name": "thịt gà"
+    },
+    "-OEhfq-U9b2hXNY8R96F": {
+      "completed": false,
+      "idsubtask": "-OEhfq-U9b2hXNY8R96F",
+      "idtask": "-OEhfiKCbKIbEs_GTSMA",
+      "name": "Gạo"
+    },
+    "-OEhkIelNVQoKjTMZl67": {
+      "completed": false,
+      "idsubtask": "-OEhkIelNVQoKjTMZl67",
+      "idtask": "-OEhkD7-iggUXaU9U5Dp",
+      "name": "Mua đồ ăn"
+    },
+    "-OEhkasFz8TZZ7cg9AtW": {
+      "completed": false,
+      "idsubtask": "-OEhkasFz8TZZ7cg9AtW",
+      "idtask": "-OEhkYFsWYaI7uLQmBze",
+      "name": "Mua vé"
+    },
+    "-OEhktEqn1uaCRcfQN2Y": {
+      "completed": false,
+      "idsubtask": "-OEhktEqn1uaCRcfQN2Y",
+      "idtask": "-OEhkrNSptSPADVG_3fC",
+      "name": "Mua Đất"
+    },
+    "-OEhku8hCPgzhuj6pwJf": {
+      "completed": false,
+      "idsubtask": "-OEhku8hCPgzhuj6pwJf",
+      "idtask": "-OEhkrNSptSPADVG_3fC",
+      "name": "Mua Nhà"
+    },
+    "-OEmIS8QoY5B_0w-WoNq": {
+      "completed": false,
+      "idsubtask": "-OEmIS8QoY5B_0w-WoNq",
+      "idtask": "-OEmIGPPJeNIKKVK1pJS",
+      "name": "hi"
+    }
+  },
+  "tasks": {
+    "-OCi-_Pj0wXs3-KYguFi": {
+      "completed": true,
+      "date": "2024-11-27",
+      "deadline": "2024-11-27T00:00:00.000Z",
+      "id": "-OCi-_Pj0wXs3-KYguFi",
+      "lastUpdated": "2024-12-23T06:49:44.043Z",
+      "listId": "-OCi-ThadcrL_fH-It9D",
+      "name": "Create project",
+      "notes": "Impotant\n",
+      "time": "21:24",
+      "userId": "3p0BZWdFkPbNw5lkindOEpxjf6M2"
+    },
+    "-ODUljD1pFXYSceFY9AV": {
+      "completed": false,
+      "date": "2024-12-07",
+      "deadline": "2024-12-07T00:00:00.000Z",
+      "id": "-ODUljD1pFXYSceFY9AV",
+      "lastUpdated": "2024-12-21T08:13:37.723Z",
+      "listId": "-ODUle-J6DK_klB7Rqin",
+      "name": "Làm bài tập",
+      "notes": "",
+      "time": "13:20",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-ODUlkj5lHOoIJiQlSkl": {
+      "completed": false,
+      "date": "2024-12-07",
+      "deadline": "2024-12-07T06:20:42.065Z",
+      "id": "-ODUlkj5lHOoIJiQlSkl",
+      "lastUpdated": "2024-12-07T06:20:42.065Z",
+      "listId": "-ODUle-J6DK_klB7Rqin",
+      "name": "Học từ vungej",
+      "notes": "",
+      "time": "13:20",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-ODUllzWNjebrrU3VJf8": {
+      "completed": false,
+      "date": "2024-12-07",
+      "deadline": "2024-12-07T00:00:00.000Z",
+      "id": "-ODUllzWNjebrrU3VJf8",
+      "lastUpdated": "2024-12-21T08:13:41.559Z",
+      "listId": "-ODUle-J6DK_klB7Rqin",
+      "name": "Học kanji",
+      "notes": "",
+      "time": "13:20",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEcZ0rKn_5uJJgolL-C": {
+      "completed": false,
+      "date": "2024-12-23",
+      "deadline": "2024-12-23T00:00:00.000Z",
+      "id": "-OEcZ0rKn_5uJJgolL-C",
+      "lastUpdated": "2024-12-22T09:20:45.444Z",
+      "listId": "-ODUzySX7ZWIwjQEiR2K",
+      "name": "Học tiếng Nhật",
+      "notes": "2 tiếng",
+      "time": "07:00",
+      "userId": "rKWsNFqdU9QeUItmiGgZxrJyLtM2"
+    },
+    "-OEherJsTim_iNmlT5QX": {
+      "completed": false,
+      "date": "2024-12-23",
+      "deadline": "2024-12-23T00:00:00.000Z",
+      "id": "-OEherJsTim_iNmlT5QX",
+      "lastUpdated": "2024-12-22T09:21:23.938Z",
+      "listId": "-ODUzySX7ZWIwjQEiR2K",
+      "name": "Đi tập gym",
+      "notes": "Thử bài tập ngực mới",
+      "time": "17:00",
+      "userId": "rKWsNFqdU9QeUItmiGgZxrJyLtM2"
+    },
+    "-OEhfDN4LfWws7eFFptC": {
+      "completed": false,
+      "date": "2024-12-22",
+      "deadline": "2024-12-22T00:00:00.000Z",
+      "id": "-OEhfDN4LfWws7eFFptC",
+      "lastUpdated": "2024-12-22T09:23:14.700Z",
+      "listId": "-ODUzySX7ZWIwjQEiR2K",
+      "name": "Đọc sách",
+      "notes": "Sách \"Nhà giả kim\"",
+      "time": "21:00",
+      "userId": "rKWsNFqdU9QeUItmiGgZxrJyLtM2"
+    },
+    "-OEhfQ5EjDiAKWT6abdO": {
+      "completed": false,
+      "date": "2024-12-23",
+      "deadline": "2024-12-23T00:00:00.000Z",
+      "id": "-OEhfQ5EjDiAKWT6abdO",
+      "lastUpdated": "2024-12-22T09:23:57.624Z",
+      "listId": "-ODUzySX7ZWIwjQEiR2K",
+      "name": "Dọn dẹp nhà cửa",
+      "notes": "Hoàn thành trước 6 giờ tối",
+      "time": "10:30",
+      "userId": "rKWsNFqdU9QeUItmiGgZxrJyLtM2"
+    },
+    "-OEhfiKCbKIbEs_GTSMA": {
+      "completed": false,
+      "date": "2024-12-24",
+      "deadline": "2024-12-24T00:00:00.000Z",
+      "id": "-OEhfiKCbKIbEs_GTSMA",
+      "lastUpdated": "2024-12-22T09:25:23.702Z",
+      "listId": "-OEhfgDbxiCXxS6821CO",
+      "name": "Đi chợ",
+      "notes": "Mua thêm sữa nếu cần",
+      "time": "06:30",
+      "userId": "rKWsNFqdU9QeUItmiGgZxrJyLtM2"
+    },
+    "-OEhfvGMQlqUwe9t5rGy": {
+      "completed": false,
+      "date": "2024-12-22",
+      "deadline": "2024-12-22T00:00:00.000Z",
+      "id": "-OEhfvGMQlqUwe9t5rGy",
+      "lastUpdated": "2024-12-22T09:26:03.342Z",
+      "listId": "-OEhfgDbxiCXxS6821CO",
+      "name": "Nấu ăn",
+      "notes": "Nấu cho 4 người",
+      "time": "17:30",
+      "userId": "rKWsNFqdU9QeUItmiGgZxrJyLtM2"
+    },
+    "-OEhg8OSL7GZEIltbgah": {
+      "completed": false,
+      "date": "2024-12-25",
+      "deadline": "2024-12-25T00:00:00.000Z",
+      "id": "-OEhg8OSL7GZEIltbgah",
+      "lastUpdated": "2024-12-25T00:56:22.943Z",
+      "listId": "-ODUzySX7ZWIwjQEiR2K",
+      "name": "Thiền buổi sáng",
+      "notes": "Duy trì 15 phút mỗi ngày",
+      "time": "06:00",
+      "userId": "rKWsNFqdU9QeUItmiGgZxrJyLtM2"
+    },
+    "-OEhhahKCKnPzE5SKYx7": {
+      "completed": true,
+      "date": "2024-12-20",
+      "deadline": "2024-12-20T01:00:00.000Z",
+      "id": "-OEhhahKCKnPzE5SKYx7",
+      "lastUpdated": "2024-12-22T09:36:57.486Z",
+      "listId": "-OD_t6UtaWl5fq4tZC8l",
+      "name": "Thiết kế giao diện",
+      "notes": "",
+      "time": "08:00",
+      "userId": "rKWsNFqdU9QeUItmiGgZxrJyLtM2"
+    },
+    "-OEhhg23JhI61TfebuUS": {
+      "completed": false,
+      "date": "2024-12-27",
+      "deadline": "2024-12-27T01:00:00.000Z",
+      "id": "-OEhhg23JhI61TfebuUS",
+      "lastUpdated": "2024-12-22T09:39:04.086Z",
+      "listId": "-OD_t6UtaWl5fq4tZC8l",
+      "name": "Phát triển chức năng API",
+      "notes": "",
+      "time": "08:00",
+      "userId": "3p0BZWdFkPbNw5lkindOEpxjf6M2"
+    },
+    "-OEhhhngaWsPfpsD-LEF": {
+      "completed": false,
+      "date": "2025-01-01",
+      "deadline": "2025-01-01T01:00:00.000Z",
+      "id": "-OEhhhngaWsPfpsD-LEF",
+      "lastUpdated": "2024-12-22T09:37:15.519Z",
+      "listId": "-OD_t6UtaWl5fq4tZC8l",
+      "name": "Kiểm thử ứng dụng",
+      "notes": "",
+      "time": "08:00",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEhhrNDUryRjlhrVLYV": {
+      "completed": false,
+      "date": "2024-12-22",
+      "deadline": "2024-12-22T09:34:03.772Z",
+      "id": "-OEhhrNDUryRjlhrVLYV",
+      "lastUpdated": "2024-12-22T09:34:03.772Z",
+      "listId": "-OEhdnveaojwy9_ya4mo",
+      "name": "Ôn thi cuối kỳ môn OOP",
+      "notes": "",
+      "time": "16:34",
+      "userId": "rKWsNFqdU9QeUItmiGgZxrJyLtM2"
+    },
+    "-OEhht8Cm3zJKArqOG-T": {
+      "completed": false,
+      "date": "2024-12-22",
+      "deadline": "2024-12-22T09:34:11.003Z",
+      "id": "-OEhht8Cm3zJKArqOG-T",
+      "lastUpdated": "2024-12-22T09:34:11.003Z",
+      "listId": "-OEhdnveaojwy9_ya4mo",
+      "name": "Chuẩn bị bài thuyết trình môn AI",
+      "notes": "",
+      "time": "16:34",
+      "userId": "rKWsNFqdU9QeUItmiGgZxrJyLtM2"
+    },
+    "-OEhhusLl7ozk2ceJFkd": {
+      "completed": false,
+      "date": "2024-12-22",
+      "deadline": "2024-12-22T09:34:18.116Z",
+      "id": "-OEhhusLl7ozk2ceJFkd",
+      "lastUpdated": "2024-12-22T09:34:18.116Z",
+      "listId": "-OEhdnveaojwy9_ya4mo",
+      "name": "Luyện làm bài đọc hiểu JLPT",
+      "notes": "",
+      "time": "16:34",
+      "userId": "rKWsNFqdU9QeUItmiGgZxrJyLtM2"
+    },
+    "-OEhiDQC1e1YIam6qPDe": {
+      "completed": false,
+      "date": "2024-12-28",
+      "deadline": "2024-12-28T01:00:00.000Z",
+      "id": "-OEhiDQC1e1YIam6qPDe",
+      "lastUpdated": "2024-12-22T09:39:45.686Z",
+      "listId": "-OD_t6UtaWl5fq4tZC8l",
+      "name": "Tối ưu hiệu suất ứng dụng",
+      "notes": "",
+      "time": "08:00",
+      "userId": "3p0BZWdFkPbNw5lkindOEpxjf6M2"
+    },
+    "-OEhiEnUHdHCLGfWcPA9": {
+      "completed": false,
+      "date": "2024-12-23",
+      "deadline": "2024-12-23T01:00:00.000Z",
+      "id": "-OEhiEnUHdHCLGfWcPA9",
+      "lastUpdated": "2024-12-23T06:55:44.969Z",
+      "listId": "-OD_t6UtaWl5fq4tZC8l",
+      "name": "Xây dựng cơ sở dữ liệu",
+      "notes": "",
+      "time": "08:00",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEhiG500MPND-_PfTEV": {
+      "completed": true,
+      "date": "2024-12-15",
+      "deadline": "2024-12-15T01:00:00.000Z",
+      "id": "-OEhiG500MPND-_PfTEV",
+      "lastUpdated": "2024-12-22T09:39:31.241Z",
+      "listId": "-OD_t6UtaWl5fq4tZC8l",
+      "name": "Thảo luận mô hình dự án",
+      "notes": "",
+      "time": "08:00",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEhiHKMPyJzXM225lGp": {
+      "completed": false,
+      "date": "2025-01-05",
+      "deadline": "2025-01-05T01:00:00.000Z",
+      "id": "-OEhiHKMPyJzXM225lGp",
+      "lastUpdated": "2024-12-22T09:39:58.331Z",
+      "listId": "-OD_t6UtaWl5fq4tZC8l",
+      "name": "Viết tài liệu hướng dẫn",
+      "notes": "",
+      "time": "08:00",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEhiIfO7R1D9NP8RgN1": {
+      "completed": false,
+      "date": "2024-12-31",
+      "deadline": "2024-12-31T01:00:00.000Z",
+      "id": "-OEhiIfO7R1D9NP8RgN1",
+      "lastUpdated": "2024-12-22T09:39:18.365Z",
+      "listId": "-OD_t6UtaWl5fq4tZC8l",
+      "name": "Tạo công cụ kiểm tra tự động",
+      "notes": "",
+      "time": "08:00",
+      "userId": "rKWsNFqdU9QeUItmiGgZxrJyLtM2"
+    },
+    "-OEhiK0Ta--ZYBb6H-E4": {
+      "completed": false,
+      "date": "2024-12-28",
+      "deadline": "2024-12-28T07:00:00.000Z",
+      "id": "-OEhiK0Ta--ZYBb6H-E4",
+      "lastUpdated": "2024-12-22T09:42:28.176Z",
+      "listId": "-OD_t6UtaWl5fq4tZC8l",
+      "name": "Triển khai ứng dụng lên server",
+      "notes": "",
+      "time": "14:00",
+      "userId": "rKWsNFqdU9QeUItmiGgZxrJyLtM2"
+    },
+    "-OEhiL3Xj1Di3w4OaXAH": {
+      "completed": true,
+      "date": "2024-12-14",
+      "deadline": "2024-12-14T08:00:00.000Z",
+      "id": "-OEhiL3Xj1Di3w4OaXAH",
+      "lastUpdated": "2024-12-22T09:41:33.897Z",
+      "listId": "-OD_t6UtaWl5fq4tZC8l",
+      "name": "Họp với khách hàng",
+      "notes": "",
+      "time": "15:00",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEhiMrWrLlIi_O52PKS": {
+      "completed": false,
+      "date": "2025-01-01",
+      "deadline": "2025-01-01T01:00:00.000Z",
+      "id": "-OEhiMrWrLlIi_O52PKS",
+      "lastUpdated": "2024-12-22T09:41:11.243Z",
+      "listId": "-OD_t6UtaWl5fq4tZC8l",
+      "name": "Đánh giá chất lượng mã nguồn",
+      "notes": "",
+      "time": "08:00",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEhiO42m3GVVz3SHsIl": {
+      "completed": false,
+      "date": "2024-12-26",
+      "deadline": "2024-12-26T01:00:00.000Z",
+      "id": "-OEhiO42m3GVVz3SHsIl",
+      "lastUpdated": "2024-12-22T09:42:07.082Z",
+      "listId": "-OD_t6UtaWl5fq4tZC8l",
+      "name": "Phân tích dữ liệu log",
+      "notes": "",
+      "time": "08:00",
+      "userId": "3p0BZWdFkPbNw5lkindOEpxjf6M2"
+    },
+    "-OEhiPRDy6OdSGwV9TiN": {
+      "completed": false,
+      "date": "2025-01-31",
+      "deadline": "2025-01-31T01:00:00.000Z",
+      "id": "-OEhiPRDy6OdSGwV9TiN",
+      "lastUpdated": "2024-12-23T06:58:18.677Z",
+      "listId": "-OD_t6UtaWl5fq4tZC8l",
+      "name": "Lên kế hoạch phát triển tính năng mới",
+      "notes": "",
+      "time": "08:00",
+      "userId": "3p0BZWdFkPbNw5lkindOEpxjf6M2"
+    },
+    "-OEhk0jkqGkRWCjLFGcZ": {
+      "completed": false,
+      "date": "2024-12-25",
+      "deadline": "2024-12-25T00:00:00.000Z",
+      "id": "-OEhk0jkqGkRWCjLFGcZ",
+      "lastUpdated": "2024-12-22T09:43:43.844Z",
+      "listId": "-ODUlh9MnUzIVB2ZX66z",
+      "name": "Chơi bóng đá",
+      "notes": "",
+      "time": "16:30",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEhk5j48a787_W_5ng-": {
+      "completed": false,
+      "date": "2024-12-29",
+      "deadline": "2024-12-29T00:00:00.000Z",
+      "id": "-OEhk5j48a787_W_5ng-",
+      "lastUpdated": "2024-12-22T09:44:14.250Z",
+      "listId": "-ODUlh9MnUzIVB2ZX66z",
+      "name": "Tổ chức buổi karaoke",
+      "notes": "",
+      "time": "19:00",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEhkD7-iggUXaU9U5Dp": {
+      "completed": false,
+      "date": "2024-12-29",
+      "deadline": "2024-12-29T00:00:00.000Z",
+      "id": "-OEhkD7-iggUXaU9U5Dp",
+      "lastUpdated": "2024-12-22T09:44:44.663Z",
+      "listId": "-ODUlh9MnUzIVB2ZX66z",
+      "name": "Đi dã ngoại cuối tuần",
+      "notes": "",
+      "time": "10:00",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEhkLr9mHYAHkgt63ms": {
+      "completed": false,
+      "date": "2025-01-03",
+      "deadline": "2025-01-03T00:00:00.000Z",
+      "id": "-OEhkLr9mHYAHkgt63ms",
+      "lastUpdated": "2024-12-22T09:45:12.331Z",
+      "listId": "-ODUlh9MnUzIVB2ZX66z",
+      "name": "Chuẩn bị tiệc gia đình",
+      "notes": "",
+      "time": "07:00",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEhkYFsWYaI7uLQmBze": {
+      "completed": false,
+      "date": "2024-12-25",
+      "deadline": "2024-12-25T00:00:00.000Z",
+      "id": "-OEhkYFsWYaI7uLQmBze",
+      "lastUpdated": "2024-12-22T09:46:03.382Z",
+      "listId": "-OEhkUp1z8xDGAyRVYU0",
+      "name": "Đi xem phim",
+      "notes": "",
+      "time": "18:45",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEhkefIf86AFqfk_vGm": {
+      "completed": false,
+      "date": "2024-12-26",
+      "deadline": "2024-12-26T00:00:00.000Z",
+      "id": "-OEhkefIf86AFqfk_vGm",
+      "lastUpdated": "2024-12-22T09:46:59.132Z",
+      "listId": "-OEhkUp1z8xDGAyRVYU0",
+      "name": "Mua máy tính mới",
+      "notes": "RTX4090 - 32GB",
+      "time": "10:00",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEhkrNSptSPADVG_3fC": {
+      "completed": false,
+      "date": "2024-12-28",
+      "deadline": "2024-12-28T00:00:00.000Z",
+      "id": "-OEhkrNSptSPADVG_3fC",
+      "lastUpdated": "2024-12-22T09:47:59.534Z",
+      "listId": "-OEhkUp1z8xDGAyRVYU0",
+      "name": "Trở thành tỷ phú",
+      "notes": "Dậy vào 6 giờ sáng",
+      "time": "23:00",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEhl6wwzUK1a3OYlILx": {
+      "completed": false,
+      "date": "2024-12-25",
+      "deadline": "2024-12-25T00:00:00.000Z",
+      "id": "-OEhl6wwzUK1a3OYlILx",
+      "lastUpdated": "2024-12-22T09:48:33.158Z",
+      "listId": "-OEhkUp1z8xDGAyRVYU0",
+      "name": "Đi thi",
+      "notes": "",
+      "time": "10:00",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEhlByRPgoh_J2tvScj": {
+      "completed": false,
+      "date": "2024-12-25",
+      "deadline": "2024-12-25T00:00:00.000Z",
+      "id": "-OEhlByRPgoh_J2tvScj",
+      "lastUpdated": "2024-12-22T09:48:51.690Z",
+      "listId": "-OEhkUp1z8xDGAyRVYU0",
+      "name": "Ngủ",
+      "notes": "",
+      "time": "12:00",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEhlO73E5qkYRlw7ri1": {
+      "completed": false,
+      "date": "2024-12-22",
+      "deadline": "2024-12-22T09:49:28.434Z",
+      "id": "-OEhlO73E5qkYRlw7ri1",
+      "lastUpdated": "12/22/2024, 4:49:40 PM",
+      "name": "Chơi game",
+      "notes": "",
+      "time": "16:49",
+      "userId": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "-OEmMPpjnySIKPUxxbUm": {
+      "completed": true,
+      "date": "2024-12-23",
+      "deadline": "2024-12-23T00:00:00.000Z",
+      "id": "-OEmMPpjnySIKPUxxbUm",
+      "lastUpdated": "2024-12-23T07:19:40.213Z",
+      "listId": "-OCi-ThadcrL_fH-It9D",
+      "name": "Diem",
+      "notes": "",
+      "time": "14:14",
+      "userId": "3p0BZWdFkPbNw5lkindOEpxjf6M2"
+    },
+    "-OEvFuqy-7QvAn3Y6jEE": {
+      "completed": false,
+      "date": "2024-12-25",
+      "deadline": "2024-12-25T00:00:00.000Z",
+      "id": "-OEvFuqy-7QvAn3Y6jEE",
+      "lastUpdated": "2024-12-25T00:42:28.246Z",
+      "listId": "-ODUzySX7ZWIwjQEiR2K",
+      "name": "Đi thi",
+      "notes": "",
+      "time": "08:00",
+      "userId": "rKWsNFqdU9QeUItmiGgZxrJyLtM2"
+    }
+  },
+  "users": {
+    "3p0BZWdFkPbNw5lkindOEpxjf6M2": {
+      "email": "phu@gmail.com",
+      "id": "3p0BZWdFkPbNw5lkindOEpxjf6M2"
+    },
+    "5FJGLrMiBReUwMKw6gkoWTznwcw1": {
+      "email": "linh@gmail.com",
+      "id": "5FJGLrMiBReUwMKw6gkoWTznwcw1"
+    },
+    "ET1URdKZZUe1LbrHGdpSXV5na5g1": {
+      "email": "a@mail.com",
+      "id": "ET1URdKZZUe1LbrHGdpSXV5na5g1"
+    },
+    "RpgaSK9QirWobZux6jFLbMdNiHl1": {
+      "email": "phucph.21it@vku.udn.vn",
+      "id": "RpgaSK9QirWobZux6jFLbMdNiHl1"
+    },
+    "rKWsNFqdU9QeUItmiGgZxrJyLtM2": {
+      "email": "p@admin.com",
+      "id": "rKWsNFqdU9QeUItmiGgZxrJyLtM2"
+    }
+  }
+}
