@@ -31,5 +31,26 @@ Phạm Quốc Phú
     npx expo start
    ```
 
-   ## Hình ảnh về sản phẩm
+   ## File Word báo cáo
+   [Báo cáo](demo/BaoCaoDoAnMonHoc.docx)
+   ## File phân công nhiệm vụ
+   [Phân công nhiệm vụ](demo/Phan%20cong%20nhiem%20vu%20nhom.docx)
+   ## File quản lý công việc
+   [Quản lý công việc](demo/Quản%20lý%20công%20việc.xlsx)
+   ## File Json cho database
+   [File databse](demo/database.json)
    
+
+   ## Hình ảnh về sản phẩm
+   ### Giao diện đăng nhập đăng ký
+   ![Giao diện login](demo/demo.png)
+   ### Giao diện quản lý List
+   ![Giao diện quản lý List](demo/demo1.png)
+   ### Giao diện quản lý Task
+   ![Giao diện quản lý Task](demo/demo2.png)
+   ![Giao diện danh sách task 1](demo/demo3.png)
+   ![Giao diện danh sách task 2](demo/demo4.png)
+   ### Giao diện quản lý ShareSpace
+   ![Giao diện sharespace 1](demo/demo5.png)
+   ![Giao diện sharespace 2](demo/demo6.png)
+   ![Giao diện sharespace 3](demo/demo7.png)
