@@ -48,6 +48,10 @@ Phạm Quốc Phú
 
    [File databse](demo/database.json)
 
+   ## Video demo sản phẩm
+
+   [Video demo](https://drive.google.com/drive/folders/1_KIggM7HETQ7dCkrlUS4Wek2RvPDG8HU?usp=sharing)
+
    ## Hình ảnh về sản phẩm
 
    ### Giao diện đăng nhập đăng ký
@@ -70,6 +74,4 @@ Phạm Quốc Phú
    ![Giao diện sharespace 2](demo/demo6.png)
    ![Giao diện sharespace 3](demo/demo7.png)
 
-   ## Video demo sản phẩm
 
-   [Video demo](https://drive.google.com/drive/folders/1_KIggM7HETQ7dCkrlUS4Wek2RvPDG8HU?usp=sharing)
